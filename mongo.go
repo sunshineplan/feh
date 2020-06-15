@@ -75,11 +75,14 @@ func Record(event int, round int, fullScoreboard []Scoreboard) {
 	}
 }
 
-func converter(d []bson.M) string {
+func converter(d []bson.D) string {
 	var output string
 	for index, item := range d {
-		if item["date"] != nil {
-			item["date"] = item["date"].(primitive.DateTime).Time().Format("2006-01-02")
+		for i, e := range item {
+			if e.Key == "date" {
+				item[i].Value = e.Value.(primitive.DateTime).Time().Format("2006-01-02")
+				break
+			}
 		}
 		b, err := bson.MarshalExtJSON(item, false, true)
 		if err != nil {
@@ -101,7 +104,7 @@ func Result(event int) (string, string) {
 	client, config := connect()
 	defer client.Disconnect(ctx)
 	collection := client.Database(config.Database).Collection(config.Collection)
-	var detail, summary []bson.M
+	var detail, summary []bson.D
 
 	opts := options.Find()
 	opts.SetProjection(bson.M{"_id": 0, "event": 0})
