@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/vharitonsky/iniflags"
 )
@@ -28,19 +29,19 @@ func main() {
 		case "upload":
 			Upload(0)
 		default:
-			log.Fatalf("Unknown argument %s", flag.Arg(0))
+			log.Fatalf("Unknown argument: %s", flag.Arg(0))
 		}
 	case 2:
 		if flag.Arg(0) != "upload" {
-			log.Fatalf("Unknown arguments %s", flag.Args())
+			log.Fatalf("Unknown arguments: %s", strings.Join(flag.Args(), " "))
 		} else {
 			event, err := strconv.Atoi(flag.Arg(1))
 			if err != nil {
-				log.Fatalf("Unknown arguments %s", flag.Arg(1))
+				log.Fatalf("Unknown argument: upload %s", flag.Arg(1))
 			}
 			Upload(event)
 		}
 	default:
-		log.Fatalf("Unknown arguments %s", flag.Args())
+		log.Fatalf("Unknown arguments: %s", strings.Join(flag.Args(), " "))
 	}
 }

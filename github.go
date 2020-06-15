@@ -18,7 +18,7 @@ type Github struct {
 }
 
 // Commit single new file to repository
-func Commit(name, content string) {
+func Commit(name, content string) error {
 	config := GetGithub()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -36,7 +36,5 @@ func Commit(name, content string) {
 		config.Repository,
 		fmt.Sprintf("%s/%s.json", config.Path, name),
 		opts)
-	if err != nil {
-		fmt.Println(err)
-	}
+	return err
 }

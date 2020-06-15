@@ -55,14 +55,18 @@ func Record(event int, round int, fullScoreboard []Scoreboard) {
 			ctx,
 			bson.M{
 				"scoreboard": bson.A{
-					bson.M{"hero": scoreboard.Hero1, "score": scoreboard.Score1},
-					bson.M{"hero": scoreboard.Hero2, "score": scoreboard.Score2}}},
+					bson.D{
+						bson.E{Key: "hero", Value: scoreboard.Hero1},
+						bson.E{Key: "score", Value: scoreboard.Score1}},
+					bson.D{
+						bson.E{Key: "hero", Value: scoreboard.Hero2},
+						bson.E{Key: "score", Value: scoreboard.Score2}}}},
 			bson.M{
-				"$setOnInsert": bson.M{
-					"event": event,
-					"date":  time.Now().Truncate(24 * time.Hour),
-					"hour":  time.Now().Hour(),
-					"round": round}},
+				"$setOnInsert": bson.D{
+					bson.E{Key: "event", Value: event},
+					bson.E{Key: "date", Value: time.Now().Truncate(24 * time.Hour)},
+					bson.E{Key: "hour", Value: time.Now().Hour()},
+					bson.E{Key: "round", Value: round}}},
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {

@@ -62,11 +62,24 @@ func Upload(e int) {
 	} else {
 		detail, summary = Result(e)
 		if detail == "" {
-			fmt.Printf("No result for event %d. Use last event result instead.", e)
+			fmt.Printf("No result for event %d. Use last event result instead.\n", e)
 			Upload(0)
 			return
 		}
 	}
-	go Commit(fmt.Sprintf("FEH 投票大戦第%d回", e), detail)
-	go Commit(fmt.Sprintf("FEH 投票大戦第%d回結果一覧", e), summary)
+	c := make(chan int)
+	go func() {
+		if err := Commit(fmt.Sprintf("FEH 投票大戦第%d回", e), detail); err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("FEH 投票大戦第%d回.json uploaded\n", e)
+		}
+		c <- 1
+	}()
+	if err := Commit(fmt.Sprintf("FEH 投票大戦第%d回結果一覧", e), summary); err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Printf("FEH 投票大戦第%d回結果一覧.json uploaded\n", e)
+	}
+	<-c
 }
