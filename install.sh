@@ -12,9 +12,9 @@ installFEH() {
 }
 
 configFEH() {
-    read -p 'Please enter metadata server:' server
-    read -p 'Please enter VerifyHeader header:' header
-    read -p 'Please enter VerifyHeader value:' value
+    read -p 'Please enter metadata server: ' server
+    read -p 'Please enter VerifyHeader header: ' header
+    read -p 'Please enter VerifyHeader value: ' value
     sed "s,\$server,$server," /var/www/srce-go/config.ini.default > /var/www/srce-go/config.ini
     sed -i "s/\$header/$header/" /var/www/srce-go/config.ini
     sed -i "s/\$value/$value/" /var/www/srce-go/config.ini
