@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -26,11 +27,16 @@ func usage() {
 }
 
 func main() {
+	self, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	flag.Usage = usage
 	flag.StringVar(&MetadataConfig.Server, "server", "", "Metadata Server Address")
 	flag.StringVar(&MetadataConfig.VerifyHeader, "header", "", "Verify Header Header Name")
 	flag.StringVar(&MetadataConfig.VerifyValue, "value", "", "Verify Header Value")
-	iniflags.SetConfigFile("config.ini")
+	iniflags.SetConfigFile(filepath.Join(filepath.Dir(self), "config.ini"))
 	iniflags.SetAllowMissingConfigFile(true)
 	iniflags.Parse()
 

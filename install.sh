@@ -15,9 +15,9 @@ configFEH() {
     read -p 'Please enter metadata server: ' server
     read -p 'Please enter VerifyHeader header: ' header
     read -p 'Please enter VerifyHeader value: ' value
-    sed "s,\$server,$server," /var/www/srce-go/config.ini.default > /var/www/srce-go/config.ini
-    sed -i "s/\$header/$header/" /var/www/srce-go/config.ini
-    sed -i "s/\$value/$value/" /var/www/srce-go/config.ini
+    sed "s,\$server,$server," /etc/feh-go/config.ini.default > /etc/feh-go/config.ini
+    sed -i "s/\$header/$header/" /etc/feh-go/config.ini
+    sed -i "s/\$value/$value/" /etc/feh-go/config.ini
 }
 
 createCronTask() {
