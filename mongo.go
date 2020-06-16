@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/avast/retry-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,21 +27,33 @@ type MongoConfig struct {
 }
 
 func connect() (*mongo.Client, MongoConfig) {
-	config := GetMongo()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(
-		fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", config.Username, config.Password, config.Server, config.Port, config.Database)))
+	var client *mongo.Client
+	c := GetMongo()
+	err := retry.Do(
+		func() (err error) {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			client, err = mongo.Connect(ctx, options.Client().ApplyURI(
+				fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", c.Username, c.Password, c.Server, c.Port, c.Database)))
+			if err != nil {
+				return
+			}
+			ctx, cancelPing := context.WithTimeout(context.Background(), 2*time.Second)
+			defer cancelPing()
+			err = client.Ping(ctx, readpref.Primary())
+			return
+		},
+		retry.Attempts(Attempts),
+		retry.Delay(Delay),
+		retry.LastErrorOnly(LastErrorOnly),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("Failed to connect mongo database. #%d: %s\n", n+1, err)
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		log.Fatal(err)
-	}
-	return client, config
+	return client, c
 }
 
 // Record feh full scoreboard to database

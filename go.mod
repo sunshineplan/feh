@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/anaskhan96/soup v1.1.1
+	github.com/avast/retry-go v2.6.0+incompatible
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/sunshineplan/metadata v1.0.2

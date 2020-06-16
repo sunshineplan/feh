@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/anaskhan96/soup"
+	"github.com/avast/retry-go"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -45,20 +46,38 @@ func (s *Scoreboard) Formatter() string {
 
 // Scrape Fire Emblem Heroes Voting Gauntlet Scoreboard
 func Scrape() (event int, round int, fullScoreboard []Scoreboard, status int) {
-	resp, err := soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
+	var body string
+	err := retry.Do(
+		func() (err error) {
+			body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
+			return
+		},
+		retry.Attempts(Attempts),
+		retry.Delay(Delay),
+		retry.LastErrorOnly(LastErrorOnly),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("Scoreboard scrape failed. #%d: %s\n", n+1, err)
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
-	doc := soup.HTMLParse(resp)
+	doc := soup.HTMLParse(body)
 	for _, class := range strings.Split(doc.Find("div", "class", "title-section").Attrs()["class"], " ") {
 		if strings.Contains(class, "cover") {
-			event, _ = strconv.Atoi(strings.Split(class, "-")[1])
+			event, err = strconv.Atoi(strings.Split(class, "-")[1])
+			if err != nil {
+				log.Fatal(err)
+			}
 			break
 		}
 	}
 	for _, class := range strings.Split(doc.Find("h2", "class", "title-section").Attrs()["class"], " ") {
 		if strings.Contains(class, "tournament") {
-			round, _ = strconv.Atoi(strings.Split(class, "-")[2])
+			round, err = strconv.Atoi(strings.Split(class, "-")[2])
+			if err != nil {
+				log.Fatal(err)
+			}
 			break
 		}
 	}
@@ -67,9 +86,15 @@ func Scrape() (event int, round int, fullScoreboard []Scoreboard, status int) {
 		scoreboard := new(Scoreboard)
 		content := battle.FindAll("p")
 		scoreboard.Hero1 = content[0].Text()
-		scoreboard.Score1, _ = strconv.Atoi(strings.Replace(content[1].Text(), ",", "", -1))
+		scoreboard.Score1, err = strconv.Atoi(strings.Replace(content[1].Text(), ",", "", -1))
+		if err != nil {
+			log.Fatal(err)
+		}
 		scoreboard.Hero2 = content[2].Text()
-		scoreboard.Score2, _ = strconv.Atoi(strings.Replace(content[3].Text(), ",", "", -1))
+		scoreboard.Score2, err = strconv.Atoi(strings.Replace(content[3].Text(), ",", "", -1))
+		if err != nil {
+			log.Fatal(err)
+		}
 		fullScoreboard = append(fullScoreboard, *scoreboard)
 	}
 	if len(doc.FindAll("div", "class", "tournaments-art-win")) == 0 {

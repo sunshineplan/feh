@@ -2,16 +2,39 @@ package main
 
 import (
 	"log"
+	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/sunshineplan/metadata"
 )
 
 // MetadataConfig is metadata server config
 var MetadataConfig = new(metadata.Config)
 
+var (
+	// Attempts is default retry attempts
+	Attempts = uint(3)
+	// Delay is default retry delay
+	Delay = 10 * time.Second
+	// LastErrorOnly return all errors if false
+	LastErrorOnly = true
+)
+
 // GetMongo get mongo config
 func GetMongo() (config MongoConfig) {
-	c, err := metadata.Get("feh_mongo", MetadataConfig)
+	var c interface{}
+	err := retry.Do(
+		func() (err error) {
+			c, err = metadata.Get("feh_mongo", MetadataConfig)
+			return
+		},
+		retry.Attempts(Attempts),
+		retry.Delay(Delay),
+		retry.LastErrorOnly(LastErrorOnly),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("Failed to get metadata feh_mongo. #%d: %s\n", n+1, err)
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,7 +49,19 @@ func GetMongo() (config MongoConfig) {
 
 // GetSubscribe get subscribe info
 func GetSubscribe() (config Subscribe) {
-	c, err := metadata.Get("feh_subscribe", MetadataConfig)
+	var c interface{}
+	err := retry.Do(
+		func() (err error) {
+			c, err = metadata.Get("feh_subscribe", MetadataConfig)
+			return
+		},
+		retry.Attempts(Attempts),
+		retry.Delay(Delay),
+		retry.LastErrorOnly(LastErrorOnly),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("Failed to get metadata feh_subscribe. #%d: %s\n", n+1, err)
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +75,19 @@ func GetSubscribe() (config Subscribe) {
 
 // GetGithub get github info
 func GetGithub() (config Github) {
-	c, err := metadata.Get("feh_github", MetadataConfig)
+	var c interface{}
+	err := retry.Do(
+		func() (err error) {
+			c, err = metadata.Get("feh_github", MetadataConfig)
+			return
+		},
+		retry.Attempts(Attempts),
+		retry.Delay(Delay),
+		retry.LastErrorOnly(LastErrorOnly),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("Failed to get metadata feh_github. #%d: %s\n", n+1, err)
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
