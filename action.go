@@ -6,6 +6,9 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/avast/retry-go"
+	"github.com/sunshineplan/utils/mail"
 )
 
 // Update feh scoreboard
@@ -22,12 +25,24 @@ func Update() {
 	Record(event, round, fullScoreboard)
 	if status == 1 {
 		mailConfig := GetSubscribe()
-		if err := Mail(
-			&mailConfig,
-			fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
-			fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
-			nil,
-		); err != nil {
+		err := retry.Do(
+			func() error {
+				err := mail.SendMail(
+					&mailConfig,
+					fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
+					fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
+					nil,
+				)
+				return err
+			},
+			retry.Attempts(Attempts),
+			retry.Delay(Delay),
+			retry.LastErrorOnly(LastErrorOnly),
+			retry.OnRetry(func(n uint, err error) {
+				log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
+			}),
+		)
+		if err != nil {
 			return
 		}
 	}
@@ -39,12 +54,24 @@ func Backup() {
 	file := Dump()
 	defer os.Remove(file)
 	mailConfig := GetSubscribe()
-	if err := Mail(
-		&mailConfig,
-		fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
-		"",
-		&Attachment{FilePath: file, Filename: "database"},
-	); err != nil {
+	err := retry.Do(
+		func() error {
+			err := mail.SendMail(
+				&mailConfig,
+				fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
+				"",
+				&mail.Attachment{FilePath: file, Filename: "database"},
+			)
+			return err
+		},
+		retry.Attempts(Attempts),
+		retry.Delay(Delay),
+		retry.LastErrorOnly(LastErrorOnly),
+		retry.OnRetry(func(n uint, err error) {
+			log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
+		}),
+	)
+	if err != nil {
 		return
 	}
 	fmt.Println("Backup FEH done.")

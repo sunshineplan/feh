@@ -6,6 +6,7 @@ import (
 
 	"github.com/avast/retry-go"
 	"github.com/sunshineplan/metadata"
+	"github.com/sunshineplan/utils/mail"
 )
 
 // MetadataConfig is metadata server config
@@ -48,7 +49,7 @@ func GetMongo() (config MongoConfig) {
 }
 
 // GetSubscribe get subscribe info
-func GetSubscribe() (config Subscribe) {
+func GetSubscribe() (config mail.Setting) {
 	var c interface{}
 	err := retry.Do(
 		func() (err error) {
@@ -65,11 +66,11 @@ func GetSubscribe() (config Subscribe) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	config.Sender = c.(map[string]interface{})["sender"].(string)
+	config.From = c.(map[string]interface{})["sender"].(string)
+	config.To = []string{c.(map[string]interface{})["subscriber"].(string)}
 	config.Password = c.(map[string]interface{})["password"].(string)
 	config.SMTPServer = c.(map[string]interface{})["smtp_server"].(string)
 	config.SMTPServerPort = int(c.(map[string]interface{})["smtp_server_port"].(float64))
-	config.Subscriber = c.(map[string]interface{})["subscriber"].(string)
 	return
 }
 
