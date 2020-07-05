@@ -57,14 +57,15 @@ func connect() (*mongo.Client, MongoConfig) {
 }
 
 // Record feh full scoreboard to database
-func Record(event int, round int, fullScoreboard []Scoreboard) {
+func Record(event int, round int, fullScoreboard []Scoreboard) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, config := connect()
 	defer client.Disconnect(ctx)
 	collection := client.Database(config.Database).Collection(config.Collection)
+	var ok bool
 	for _, scoreboard := range fullScoreboard {
-		_, err := collection.UpdateOne(
+		r, err := collection.UpdateOne(
 			ctx,
 			bson.M{
 				"scoreboard": bson.A{
@@ -85,7 +86,11 @@ func Record(event int, round int, fullScoreboard []Scoreboard) {
 		if err != nil {
 			log.Fatal(err)
 		}
+		if r.UpsertedCount == 1 {
+			ok = true
+		}
 	}
+	return ok
 }
 
 func converter(d []bson.D) string {

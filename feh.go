@@ -45,7 +45,7 @@ func (s *Scoreboard) Formatter() string {
 }
 
 // Scrape Fire Emblem Heroes Voting Gauntlet Scoreboard
-func Scrape() (event int, round int, fullScoreboard []Scoreboard, status int) {
+func Scrape() (event int, round int, fullScoreboard []Scoreboard) {
 	var body string
 	err := retry.Do(
 		func() (err error) {
@@ -96,11 +96,6 @@ func Scrape() (event int, round int, fullScoreboard []Scoreboard, status int) {
 			log.Fatal(err)
 		}
 		fullScoreboard = append(fullScoreboard, *scoreboard)
-	}
-	if len(doc.FindAll("div", "class", "tournaments-art-win")) == 0 {
-		status = 1
-	} else {
-		status = 0 // Event Not Open
 	}
 	return
 }
