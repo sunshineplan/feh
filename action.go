@@ -18,12 +18,12 @@ func Update() {
 		body  = "%s\n\n%s"
 	)
 	event, round, fullScoreboard := Scrape()
-	var content []string
-	for _, item := range fullScoreboard {
-		content = append(content, item.Formatter())
-	}
-	ok := Record(event, round, fullScoreboard)
-	if ok {
+	newScoreboard := Record(event, round, fullScoreboard)
+	if newScoreboard != nil {
+		var content []string
+		for _, item := range newScoreboard {
+			content = append(content, item.Formatter())
+		}
 		mailConfig := GetSubscribe()
 		err := retry.Do(
 			func() error {
