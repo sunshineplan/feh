@@ -16,8 +16,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-// MongoConfig struct
-type MongoConfig struct {
+type mongoConfig struct {
 	Server     string
 	Port       int
 	Database   string
@@ -26,9 +25,9 @@ type MongoConfig struct {
 	Password   string
 }
 
-func connect() (*mongo.Client, MongoConfig) {
+func connect() (*mongo.Client, mongoConfig) {
 	var client *mongo.Client
-	c := GetMongo()
+	c := getMongo()
 	err := retry.Do(
 		func() (err error) {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -43,9 +42,9 @@ func connect() (*mongo.Client, MongoConfig) {
 			err = client.Ping(ctx, readpref.Primary())
 			return
 		},
-		retry.Attempts(Attempts),
-		retry.Delay(Delay),
-		retry.LastErrorOnly(LastErrorOnly),
+		retry.Attempts(attempts),
+		retry.Delay(delay),
+		retry.LastErrorOnly(lastErrorOnly),
 		retry.OnRetry(func(n uint, err error) {
 			log.Printf("Failed to connect mongo database. #%d: %s\n", n+1, err)
 		}),
@@ -56,8 +55,7 @@ func connect() (*mongo.Client, MongoConfig) {
 	return client, c
 }
 
-// Record feh full scoreboard to database
-func Record(event int, round int, fullScoreboard []Scoreboard) []Scoreboard {
+func record(event int, round int, fullScoreboard []Scoreboard) []Scoreboard {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, config := connect()
@@ -118,8 +116,7 @@ func converter(d []bson.D) string {
 	return fmt.Sprintf("[%s]", output)
 }
 
-// Result return feh event result from database
-func Result(event int) (string, string) {
+func result(event int) (string, string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, config := connect()
@@ -183,13 +180,14 @@ func Result(event int) (string, string) {
 	return converter(detail), converter(summary)
 }
 
-// Dump feh database
-func Dump() string {
+func dump() string {
 	tmpfile, err := ioutil.TempFile("", "tmp")
 	if err != nil {
 		log.Fatal(err)
 	}
-	mongoConfig := GetMongo()
+	tmpfile.Close()
+
+	mongoConfig := getMongo()
 	args := []string{}
 	args = append(args, fmt.Sprintf("-h%s:%d", mongoConfig.Server, mongoConfig.Port))
 	args = append(args, fmt.Sprintf("-d%s", mongoConfig.Database))

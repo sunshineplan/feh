@@ -14,8 +14,8 @@ import (
 
 func usage() {
 	fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:\n", os.Args[0])
-	fmt.Println(
-		`  update
+	fmt.Println(`
+  update
         Update Current Fire Emblem Heroes Voting Gauntlet Event Scoreboard to Database.
 
   backup
@@ -33,24 +33,24 @@ func main() {
 	}
 
 	flag.Usage = usage
-	flag.StringVar(&MetadataConfig.Server, "server", "", "Metadata Server Address")
-	flag.StringVar(&MetadataConfig.VerifyHeader, "header", "", "Verify Header Header Name")
-	flag.StringVar(&MetadataConfig.VerifyValue, "value", "", "Verify Header Value")
+	flag.StringVar(&metadataConfig.Server, "server", "", "Metadata Server Address")
+	flag.StringVar(&metadataConfig.VerifyHeader, "header", "", "Verify Header Header Name")
+	flag.StringVar(&metadataConfig.VerifyValue, "value", "", "Verify Header Value")
 	iniflags.SetConfigFile(filepath.Join(filepath.Dir(self), "config.ini"))
 	iniflags.SetAllowMissingConfigFile(true)
 	iniflags.Parse()
 
 	switch flag.NArg() {
 	case 0:
-		Update()
+		update()
 	case 1:
 		switch flag.Arg(0) {
 		case "update":
-			Update()
+			update()
 		case "backup":
-			Backup()
+			backup()
 		case "upload":
-			Upload(0)
+			upload(0)
 		default:
 			log.Fatalf("Unknown argument: %s", flag.Arg(0))
 		}
@@ -62,7 +62,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("Unknown argument: upload %s", flag.Arg(1))
 			}
-			Upload(event)
+			upload(event)
 		}
 	default:
 		log.Fatalf("Unknown arguments: %s", strings.Join(flag.Args(), " "))

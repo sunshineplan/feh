@@ -20,9 +20,8 @@ type Github struct {
 	Path       string
 }
 
-// Commit single new file to repository
-func Commit(name, content string) error {
-	config := GetGithub()
+func commit(name, content string) error {
+	config := getGithub()
 	token := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.Token})
 	opts := &github.RepositoryContentFileOptions{
 		Message: github.String(name),
@@ -41,9 +40,9 @@ func Commit(name, content string) error {
 				opts)
 			return err
 		},
-		retry.Attempts(Attempts),
-		retry.Delay(Delay),
-		retry.LastErrorOnly(LastErrorOnly),
+		retry.Attempts(attempts),
+		retry.Delay(delay),
+		retry.LastErrorOnly(lastErrorOnly),
 		retry.OnRetry(func(n uint, err error) {
 			log.Printf("File commit failed. #%d: %s\n", n+1, err)
 		}),

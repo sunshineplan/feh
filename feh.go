@@ -44,17 +44,16 @@ func (s *Scoreboard) Formatter() string {
 		thousandsComma(s.Score2))
 }
 
-// Scrape Fire Emblem Heroes Voting Gauntlet Scoreboard
-func Scrape() (event int, round int, fullScoreboard []Scoreboard) {
+func scrape() (event int, round int, fullScoreboard []Scoreboard) {
 	var body string
 	err := retry.Do(
 		func() (err error) {
 			body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
 			return
 		},
-		retry.Attempts(Attempts),
-		retry.Delay(Delay),
-		retry.LastErrorOnly(LastErrorOnly),
+		retry.Attempts(attempts),
+		retry.Delay(delay),
+		retry.LastErrorOnly(lastErrorOnly),
 		retry.OnRetry(func(n uint, err error) {
 			log.Printf("Scoreboard scrape failed. #%d: %s\n", n+1, err)
 		}),
