@@ -73,10 +73,10 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
-github.com/sunshineplan/metadata v0.0.0-20200724054017-258e10d69a66 h1:Im33xfdAOWwb+Kw9xg8smdsXWROQTpb7X7LfaqFawKY=
-github.com/sunshineplan/metadata v0.0.0-20200724054017-258e10d69a66/go.mod h1:0MYYxq/eL+DQecrRyVk6YGjwf2DUEbQ96nREGYWojyE=
-github.com/sunshineplan/utils v0.0.0-20200716090624-b3eb17c23fa0 h1:KUvyvfXYzN/MIURHfBf5wv/OxPaGaKwr68hBbyAke0E=
-github.com/sunshineplan/utils v0.0.0-20200716090624-b3eb17c23fa0/go.mod h1:fJ8/Fjbd50RwQ8/wxBmBgkuDHfcXrCJu6c/iRsgkYok=
+github.com/sunshineplan/metadata v0.0.0-20200803020007-3027c995551f h1:Dnw0TpQdwhFUHOm+B0RnFmHtieePfmqOWcsEcHcMwco=
+github.com/sunshineplan/metadata v0.0.0-20200803020007-3027c995551f/go.mod h1:0MYYxq/eL+DQecrRyVk6YGjwf2DUEbQ96nREGYWojyE=
+github.com/sunshineplan/utils v0.0.0-20200812061024-54cd08480826 h1:Xa13ylxiREm/NHdVcCRZ9GRkTux7VZ/yi2EYioZ5cV4=
+github.com/sunshineplan/utils v0.0.0-20200812061024-54cd08480826/go.mod h1:fJ8/Fjbd50RwQ8/wxBmBgkuDHfcXrCJu6c/iRsgkYok=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/vharitonsky/iniflags v0.0.0-20180513140207-a33cd0b5f3de h1:fkw+7JkxF3U1GzQoX9h69Wvtvxajo5Rbzy6+YMMzPIg=
 github.com/vharitonsky/iniflags v0.0.0-20180513140207-a33cd0b5f3de/go.mod h1:irMhzlTz8+fVFj6CH2AN2i+WI5S6wWFtK3MBCIxIpyI=

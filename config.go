@@ -18,7 +18,7 @@ var (
 )
 
 func getMongo() (config mongoConfig) {
-	m, err := metadata.Get("feh_mongo", &metadataConfig)
+	m, err := metadataConfig.Get("feh_mongo")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,7 +29,7 @@ func getMongo() (config mongoConfig) {
 }
 
 func getSubscribe() (config mail.Setting) {
-	m, err := metadata.Get("feh_subscribe", &metadataConfig)
+	m, err := metadataConfig.Get("feh_subscribe")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func getSubscribe() (config mail.Setting) {
 }
 
 func getGithub() (config Github) {
-	m, err := metadata.Get("feh_github", &metadataConfig)
+	m, err := metadataConfig.Get("feh_github")
 	if err != nil {
 		log.Fatal(err)
 	}
