@@ -17,6 +17,8 @@ var Round = map[int]string{1: "Round1", 2: "Round2", 3: "Final Round"}
 
 // Scoreboard contains battle score
 type Scoreboard struct {
+	Event  int
+	Round  int
 	Hero1  string
 	Score1 int
 	Hero2  string
@@ -82,7 +84,9 @@ func scrape() (event int, round int, fullScoreboard []Scoreboard) {
 	}
 	allBattles := doc.FindAll("li", "class", "tournaments-battle")
 	for _, battle := range allBattles {
-		scoreboard := new(Scoreboard)
+		var scoreboard Scoreboard
+		scoreboard.Event = event
+		scoreboard.Round = round
 		content := battle.FindAll("p")
 		scoreboard.Hero1 = content[0].Text()
 		scoreboard.Score1, err = strconv.Atoi(strings.Replace(content[1].Text(), ",", "", -1))
@@ -94,7 +98,7 @@ func scrape() (event int, round int, fullScoreboard []Scoreboard) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fullScoreboard = append(fullScoreboard, *scoreboard)
+		fullScoreboard = append(fullScoreboard, scoreboard)
 	}
 	return
 }

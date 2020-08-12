@@ -17,14 +17,47 @@ func update() {
 		body  = "%s\n\n%s"
 	)
 	event, round, fullScoreboard := scrape()
-	newScoreboard := record(event, round, fullScoreboard)
+	newScoreboard := record(fullScoreboard)
 	if newScoreboard != nil {
 		var content []string
+		var extra int
+		var extraContent []string
 		for _, item := range newScoreboard {
-			content = append(content, item.Formatter())
+			if item.Round == round {
+				content = append(content, item.Formatter())
+			} else {
+				extra = item.Round
+				extraContent = append(extraContent, item.Formatter())
+			}
 		}
 		mailConfig := getSubscribe()
-		err := retry.Do(
+		c := make(chan int, 1)
+		if extra != 0 {
+			go func() {
+				if err := retry.Do(
+					func() error {
+						err := mail.SendMail(
+							&mailConfig,
+							fmt.Sprintf(title, event, Round[extra], time.Now().Format("20060102 15:00:00")),
+							fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
+						)
+						return err
+					},
+					retry.Attempts(attempts),
+					retry.Delay(delay),
+					retry.LastErrorOnly(lastErrorOnly),
+					retry.OnRetry(func(n uint, err error) {
+						log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
+					}),
+				); err != nil {
+					log.Fatal("Mail result failed.")
+				}
+				c <- 1
+			}()
+		} else {
+			c <- 1
+		}
+		if err := retry.Do(
 			func() error {
 				err := mail.SendMail(
 					&mailConfig,
@@ -39,10 +72,10 @@ func update() {
 			retry.OnRetry(func(n uint, err error) {
 				log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
 			}),
-		)
-		if err != nil {
-			return
+		); err != nil {
+			log.Fatal("Mail result failed.")
 		}
+		<-c
 	}
 	fmt.Println("Update FEH done.")
 }

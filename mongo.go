@@ -55,14 +55,28 @@ func connect() (*mongo.Client, mongoConfig) {
 	return client, c
 }
 
-func record(event int, round int, fullScoreboard []Scoreboard) []Scoreboard {
+func record(fullScoreboard []Scoreboard) []Scoreboard {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, config := connect()
 	defer client.Disconnect(ctx)
 	collection := client.Database(config.Database).Collection(config.Collection)
 	var newScoreboard []Scoreboard
-	for _, scoreboard := range fullScoreboard {
+	for i, scoreboard := range fullScoreboard {
+		round := scoreboard.Round
+		var result bson.M
+		if err := collection.FindOne(
+			ctx,
+			bson.M{"event": scoreboard.Event,
+				"scoreboard.hero": bson.M{"$all": bson.A{scoreboard.Hero1, scoreboard.Hero2}}},
+			options.FindOne().SetProjection(bson.M{"_id": 0, "round": 1}),
+		).Decode(&result); err == nil {
+			round = int(result["round"].(int32))
+			fullScoreboard[i].Round = round
+		} else if err != mongo.ErrNoDocuments {
+			log.Fatal(err)
+		}
+
 		r, err := collection.UpdateOne(
 			ctx,
 			bson.M{
@@ -75,7 +89,7 @@ func record(event int, round int, fullScoreboard []Scoreboard) []Scoreboard {
 						bson.E{Key: "score", Value: scoreboard.Score2}}}},
 			bson.M{
 				"$setOnInsert": bson.D{
-					bson.E{Key: "event", Value: event},
+					bson.E{Key: "event", Value: scoreboard.Event},
 					bson.E{Key: "date", Value: time.Now().Truncate(24 * time.Hour)},
 					bson.E{Key: "hour", Value: time.Now().Hour()},
 					bson.E{Key: "round", Value: round}}},
