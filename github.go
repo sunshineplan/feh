@@ -15,7 +15,7 @@ import (
 // Github info
 type Github struct {
 	User       string
-	Repository string
+	Repository string `json:"repo"`
 	Token      string
 	Path       string
 }
