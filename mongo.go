@@ -62,8 +62,7 @@ func record(fullScoreboard []Scoreboard) []Scoreboard {
 	defer client.Disconnect(ctx)
 	collection := client.Database(config.Database).Collection(config.Collection)
 	var newScoreboard []Scoreboard
-	for i, scoreboard := range fullScoreboard {
-		round := scoreboard.Round
+	for _, scoreboard := range fullScoreboard {
 		var result bson.M
 		if err := collection.FindOne(
 			ctx,
@@ -71,8 +70,7 @@ func record(fullScoreboard []Scoreboard) []Scoreboard {
 				"scoreboard.hero": bson.M{"$all": bson.A{scoreboard.Hero1, scoreboard.Hero2}}},
 			options.FindOne().SetProjection(bson.M{"_id": 0, "round": 1}),
 		).Decode(&result); err == nil {
-			round = int(result["round"].(int32))
-			fullScoreboard[i].Round = round
+			scoreboard.Round = int(result["round"].(int32))
 		} else if err != mongo.ErrNoDocuments {
 			log.Fatal(err)
 		}
@@ -92,7 +90,7 @@ func record(fullScoreboard []Scoreboard) []Scoreboard {
 					bson.E{Key: "event", Value: scoreboard.Event},
 					bson.E{Key: "date", Value: time.Now().Truncate(24 * time.Hour)},
 					bson.E{Key: "hour", Value: time.Now().Hour()},
-					bson.E{Key: "round", Value: round}}},
+					bson.E{Key: "round", Value: scoreboard.Round}}},
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {

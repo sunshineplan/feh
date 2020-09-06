@@ -36,12 +36,10 @@ func update() {
 			go func() {
 				if err := retry.Do(
 					func() error {
-						err := mail.SendMail(
-							&mailConfig,
+						return mailConfig.Send(
 							fmt.Sprintf(title, event, Round[extra], time.Now().Format("20060102 15:00:00")),
 							fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
 						)
-						return err
 					},
 					retry.Attempts(attempts),
 					retry.Delay(delay),
@@ -59,12 +57,10 @@ func update() {
 		}
 		if err := retry.Do(
 			func() error {
-				err := mail.SendMail(
-					&mailConfig,
+				return mailConfig.Send(
 					fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
 					fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
 				)
-				return err
 			},
 			retry.Attempts(attempts),
 			retry.Delay(delay),
@@ -86,13 +82,11 @@ func backup() {
 	mailConfig := getSubscribe()
 	err := retry.Do(
 		func() error {
-			err := mail.SendMail(
-				&mailConfig,
+			return mailConfig.Send(
 				fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
 				"",
 				&mail.Attachment{FilePath: file, Filename: "database"},
 			)
-			return err
 		},
 		retry.Attempts(attempts),
 		retry.Delay(delay),

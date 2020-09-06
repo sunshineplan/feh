@@ -9,7 +9,7 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/sunshineplan/metadata v0.0.0-20200803020007-3027c995551f
-	github.com/sunshineplan/utils v0.0.0-20200812061024-54cd08480826
+	github.com/sunshineplan/utils v0.0.0-20200903135418-b66692515280
 	github.com/vharitonsky/iniflags v0.0.0-20180513140207-a33cd0b5f3de
 	go.mongodb.org/mongo-driver v1.3.5
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
