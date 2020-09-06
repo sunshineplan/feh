@@ -21,7 +21,7 @@ configFEH() {
 }
 
 createCronTask() {
-    cp -s /etc/feh-go/feh-go.cron /etc/cron.d/feh-go
+    cp -s /etc/feh-go/scripts/feh-go.cron /etc/cron.d/feh-go
     chmod 644 /etc/feh-go/feh-go.cron
 }
 
