@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/avast/retry-go"
 	"github.com/sunshineplan/utils/mail"
+	"github.com/sunshineplan/utils/retry"
 )
 
 func update() {
@@ -40,14 +40,7 @@ func update() {
 							fmt.Sprintf(title, event, Round[extra], time.Now().Format("20060102 15:00:00")),
 							fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
 						)
-					},
-					retry.Attempts(attempts),
-					retry.Delay(delay),
-					retry.LastErrorOnly(lastErrorOnly),
-					retry.OnRetry(func(n uint, err error) {
-						log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
-					}),
-				); err != nil {
+					}, 3, 10); err != nil {
 					log.Fatal("Mail result failed.")
 				}
 				c <- 1
@@ -61,14 +54,7 @@ func update() {
 					fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
 					fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
 				)
-			},
-			retry.Attempts(attempts),
-			retry.Delay(delay),
-			retry.LastErrorOnly(lastErrorOnly),
-			retry.OnRetry(func(n uint, err error) {
-				log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
-			}),
-		); err != nil {
+			}, 3, 10); err != nil {
 			log.Fatal("Mail result failed.")
 		}
 		<-c
@@ -80,22 +66,14 @@ func backup() {
 	file := dump()
 	defer os.Remove(file)
 	mailConfig := getSubscribe()
-	err := retry.Do(
+	if err := retry.Do(
 		func() error {
 			return mailConfig.Send(
 				fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
 				"",
 				&mail.Attachment{FilePath: file, Filename: "database"},
 			)
-		},
-		retry.Attempts(attempts),
-		retry.Delay(delay),
-		retry.LastErrorOnly(lastErrorOnly),
-		retry.OnRetry(func(n uint, err error) {
-			log.Printf("Mail delivery failed. #%d: %s\n", n+1, err)
-		}),
-	)
-	if err != nil {
+		}, 3, 10); err != nil {
 		return
 	}
 	fmt.Println("Backup FEH done.")

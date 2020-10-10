@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/anaskhan96/soup"
-	"github.com/avast/retry-go"
+	"github.com/sunshineplan/utils/retry"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -48,19 +48,12 @@ func (s *Scoreboard) Formatter() string {
 
 func scrape() (event int, round int, fullScoreboard []Scoreboard) {
 	var body string
-	err := retry.Do(
+	var err error
+	if err := retry.Do(
 		func() (err error) {
 			body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
 			return
-		},
-		retry.Attempts(attempts),
-		retry.Delay(delay),
-		retry.LastErrorOnly(lastErrorOnly),
-		retry.OnRetry(func(n uint, err error) {
-			log.Printf("Scoreboard scrape failed. #%d: %s\n", n+1, err)
-		}),
-	)
-	if err != nil {
+		}, 3, 10); err != nil {
 		log.Fatal(err)
 	}
 	doc := soup.HTMLParse(body)

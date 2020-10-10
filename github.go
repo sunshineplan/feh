@@ -3,12 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"strings"
 	"time"
 
-	"github.com/avast/retry-go"
 	"github.com/google/go-github/github"
+	"github.com/sunshineplan/utils/retry"
 	"golang.org/x/oauth2"
 )
 
@@ -26,7 +24,7 @@ func commit(name, content string) error {
 	opts := &github.RepositoryContentFileOptions{
 		Message: github.String(name),
 		Content: []byte(content)}
-	err := retry.Do(
+	return retry.Do(
 		func() error {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
@@ -39,20 +37,5 @@ func commit(name, content string) error {
 				fmt.Sprintf("%s/%s.json", config.Path, name),
 				opts)
 			return err
-		},
-		retry.Attempts(attempts),
-		retry.Delay(delay),
-		retry.LastErrorOnly(lastErrorOnly),
-		retry.OnRetry(func(n uint, err error) {
-			log.Printf("File commit failed. #%d: %s\n", n+1, err)
-		}),
-		retry.RetryIf(func(err error) bool {
-			if strings.Contains(err.Error(), "sha") {
-				log.Printf("File commit failed. %s.json already exists.\n%s\n", name, err)
-				return false
-			}
-			return true
-		}),
-	)
-	return err
+		}, 3, 10)
 }

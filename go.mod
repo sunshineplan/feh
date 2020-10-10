@@ -3,15 +3,14 @@ module github.com/sunshineplan/feh-go
 go 1.15
 
 require (
-	github.com/anaskhan96/soup v1.1.1
-	github.com/avast/retry-go v2.6.0+incompatible
+	github.com/anaskhan96/soup v1.2.4
 	github.com/go-mail/mail v2.3.1+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/sunshineplan/metadata v0.0.0-20200803020007-3027c995551f
-	github.com/sunshineplan/utils v0.0.0-20200903135418-b66692515280
+	github.com/sunshineplan/utils v0.0.0-20201010071829-303ccd3af9e0
 	github.com/vharitonsky/iniflags v0.0.0-20180513140207-a33cd0b5f3de
-	go.mongodb.org/mongo-driver v1.3.5
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	go.mongodb.org/mongo-driver v1.4.2
+	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/text v0.3.3
 )

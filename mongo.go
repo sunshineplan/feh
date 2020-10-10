@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/avast/retry-go"
+	"github.com/sunshineplan/utils/retry"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,7 +28,7 @@ type mongoConfig struct {
 func connect() (*mongo.Client, mongoConfig) {
 	var client *mongo.Client
 	c := getMongo()
-	err := retry.Do(
+	if err := retry.Do(
 		func() (err error) {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
@@ -41,15 +41,7 @@ func connect() (*mongo.Client, mongoConfig) {
 			defer cancelPing()
 			err = client.Ping(ctx, readpref.Primary())
 			return
-		},
-		retry.Attempts(attempts),
-		retry.Delay(delay),
-		retry.LastErrorOnly(lastErrorOnly),
-		retry.OnRetry(func(n uint, err error) {
-			log.Printf("Failed to connect mongo database. #%d: %s\n", n+1, err)
-		}),
-	)
-	if err != nil {
+		}, 3, 10); err != nil {
 		log.Fatal(err)
 	}
 	return client, c
