@@ -67,6 +67,7 @@ func record(fullScoreboard []Scoreboard) []Scoreboard {
 			log.Fatal(err)
 		}
 
+		t := time.Now()
 		r, err := collection.UpdateOne(
 			ctx,
 			bson.M{
@@ -80,8 +81,8 @@ func record(fullScoreboard []Scoreboard) []Scoreboard {
 			bson.M{
 				"$setOnInsert": bson.D{
 					bson.E{Key: "event", Value: scoreboard.Event},
-					bson.E{Key: "date", Value: time.Now().Truncate(24 * time.Hour)},
-					bson.E{Key: "hour", Value: time.Now().Hour()},
+					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)},
+					bson.E{Key: "hour", Value: t.Hour()},
 					bson.E{Key: "round", Value: scoreboard.Round}}},
 			options.Update().SetUpsert(true),
 		)
