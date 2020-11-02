@@ -17,7 +17,7 @@ jobs:
       - name: Test Code
         run: |
           go mod download
-          go build -v ./...
+          go build ./...
 
       - name: Delete Old Release
         uses: actions/github-script@v3
@@ -39,6 +39,12 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: release.data.id
+            })
+
+            await github.git.deleteRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'tags/v1.0'
             })
 
       - name: Get Current Date
