@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sunshineplan/feh"
 	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
 )
@@ -16,7 +17,7 @@ func update() {
 		title = "FEH 投票大戦第%d回 %s - %s"
 		body  = "%s\n\n%s"
 	)
-	event, round, fullScoreboard := scrape()
+	event, round, fullScoreboard := feh.Scrape()
 	newScoreboard := record(fullScoreboard)
 	if newScoreboard != nil {
 		var content []string
@@ -39,7 +40,7 @@ func update() {
 						return dialer.Send(
 							&mail.Message{
 								To:      to,
-								Subject: fmt.Sprintf(title, event, Round[extra], time.Now().Format("20060102 15:00:00")),
+								Subject: fmt.Sprintf(title, event, feh.Round[extra], time.Now().Format("20060102 15:00:00")),
 								Body:    fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
 							})
 					}, 3, 10); err != nil {
@@ -55,7 +56,7 @@ func update() {
 				return dialer.Send(
 					&mail.Message{
 						To:      to,
-						Subject: fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
+						Subject: fmt.Sprintf(title, event, feh.Round[round], time.Now().Format("20060102 15:00:00")),
 						Body:    fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
 					})
 			}, 3, 10); err != nil {
@@ -87,7 +88,7 @@ func backup() {
 func upload(e int) {
 	var detail, summary string
 	if e == 0 {
-		e, _, _ = scrape()
+		e, _, _ = feh.Scrape()
 		detail, summary = result(e)
 		if detail == "" {
 			log.Fatal("No data in database.")

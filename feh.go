@@ -1,4 +1,4 @@
-package main
+package feh
 
 import (
 	"fmt"
@@ -46,7 +46,8 @@ func (s *Scoreboard) Formatter() string {
 		thousandsComma(s.Score2))
 }
 
-func scrape() (event int, round int, fullScoreboard []Scoreboard) {
+// Scrape scrapes fireemblem heroes voting gauntlet informations.
+func Scrape() (event int, round int, fullScoreboard []Scoreboard) {
 	var body string
 	var err error
 	if err := utils.Retry(

@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"time"
 
+	"github.com/sunshineplan/feh"
 	"github.com/sunshineplan/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -47,13 +48,12 @@ func connect() (*mongo.Client, mongoConfig) {
 	return client, c
 }
 
-func record(fullScoreboard []Scoreboard) []Scoreboard {
+func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	client, config := connect()
 	defer client.Disconnect(ctx)
 	collection := client.Database(config.Database).Collection(config.Collection)
-	var newScoreboard []Scoreboard
 	for _, scoreboard := range fullScoreboard {
 		var result bson.M
 		if err := collection.FindOne(
@@ -93,10 +93,7 @@ func record(fullScoreboard []Scoreboard) []Scoreboard {
 			newScoreboard = append(newScoreboard, scoreboard)
 		}
 	}
-	if len(newScoreboard) > 0 {
-		return newScoreboard
-	}
-	return nil
+	return
 }
 
 func converter(d []bson.D) string {

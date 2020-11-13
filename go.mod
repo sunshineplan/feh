@@ -1,4 +1,4 @@
-module github.com/sunshineplan/feh-go
+module github.com/sunshineplan/feh
 
 go 1.15
 
