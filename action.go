@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
-	"github.com/sunshineplan/utils/retry"
 )
 
 func update() {
@@ -30,16 +30,18 @@ func update() {
 				extraContent = append(extraContent, item.Formatter())
 			}
 		}
-		mailConfig := getSubscribe()
+		dialer, to := getSubscribe()
 		c := make(chan int, 1)
 		if extra != 0 {
 			go func() {
-				if err := retry.Do(
+				if err := utils.Retry(
 					func() error {
-						return mailConfig.Send(
-							fmt.Sprintf(title, event, Round[extra], time.Now().Format("20060102 15:00:00")),
-							fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
-						)
+						return dialer.Send(
+							&mail.Message{
+								To:      to,
+								Subject: fmt.Sprintf(title, event, Round[extra], time.Now().Format("20060102 15:00:00")),
+								Body:    fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
+							})
 					}, 3, 10); err != nil {
 					log.Fatal("Mail result failed.")
 				}
@@ -48,12 +50,14 @@ func update() {
 		} else {
 			c <- 1
 		}
-		if err := retry.Do(
+		if err := utils.Retry(
 			func() error {
-				return mailConfig.Send(
-					fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
-					fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
-				)
+				return dialer.Send(
+					&mail.Message{
+						To:      to,
+						Subject: fmt.Sprintf(title, event, Round[round], time.Now().Format("20060102 15:00:00")),
+						Body:    fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
+					})
 			}, 3, 10); err != nil {
 			log.Fatal("Mail result failed.")
 		}
@@ -65,14 +69,15 @@ func update() {
 func backup() {
 	file := dump()
 	defer os.Remove(file)
-	mailConfig := getSubscribe()
-	if err := retry.Do(
+	dialer, to := getSubscribe()
+	if err := utils.Retry(
 		func() error {
-			return mailConfig.Send(
-				fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
-				"",
-				&mail.Attachment{FilePath: file, Filename: "database"},
-			)
+			return dialer.Send(
+				&mail.Message{
+					To:          to,
+					Subject:     fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
+					Attachments: []*mail.Attachment{{Path: file, Filename: "database"}},
+				})
 		}, 3, 10); err != nil {
 		return
 	}

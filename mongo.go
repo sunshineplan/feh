@@ -8,7 +8,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/sunshineplan/utils/retry"
+	"github.com/sunshineplan/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -28,7 +28,7 @@ type mongoConfig struct {
 func connect() (*mongo.Client, mongoConfig) {
 	var client *mongo.Client
 	c := getMongo()
-	if err := retry.Do(
+	if err := utils.Retry(
 		func() (err error) {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()

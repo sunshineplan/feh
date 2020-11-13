@@ -33,9 +33,9 @@ func main() {
 	}
 
 	flag.Usage = usage
-	flag.StringVar(&metadataConfig.Server, "server", "", "Metadata Server Address")
-	flag.StringVar(&metadataConfig.VerifyHeader, "header", "", "Verify Header Header Name")
-	flag.StringVar(&metadataConfig.VerifyValue, "value", "", "Verify Header Value")
+	flag.StringVar(&meta.Addr, "server", "", "Metadata Server Address")
+	flag.StringVar(&meta.Header, "header", "", "Verify Header Header Name")
+	flag.StringVar(&meta.Value, "value", "", "Verify Header Value")
 	iniflags.SetConfigFile(filepath.Join(filepath.Dir(self), "config.ini"))
 	iniflags.SetAllowMissingConfigFile(true)
 	iniflags.Parse()

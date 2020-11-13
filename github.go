@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/go-github/github"
-	"github.com/sunshineplan/utils/retry"
+	"github.com/sunshineplan/utils"
 	"golang.org/x/oauth2"
 )
 
@@ -24,7 +24,7 @@ func commit(name, content string) error {
 	opts := &github.RepositoryContentFileOptions{
 		Message: github.String(name),
 		Content: []byte(content)}
-	return retry.Do(
+	return utils.Retry(
 		func() error {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()

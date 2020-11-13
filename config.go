@@ -1,43 +1,41 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 
-	"github.com/sunshineplan/metadata"
 	"github.com/sunshineplan/utils/mail"
+	"github.com/sunshineplan/utils/metadata"
 )
 
-var metadataConfig metadata.Config
+var meta metadata.Server
 
 func getMongo() (config mongoConfig) {
-	m, err := metadataConfig.Get("feh_mongo")
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := json.Unmarshal(m, &config); err != nil {
+	if err := meta.Get("feh_mongo", &config); err != nil {
 		log.Fatal(err)
 	}
 	return
 }
 
-func getSubscribe() (config mail.Setting) {
-	m, err := metadataConfig.Get("feh_subscribe")
-	if err != nil {
-		log.Fatal(err)
+func getSubscribe() (dialer *mail.Dialer, to []string) {
+	var config struct {
+		SMTPServer     string
+		SMTPServerPort int
+		From, Password string
+		To             []string
 	}
-	if err := json.Unmarshal(m, &config); err != nil {
-		log.Fatal(err)
+	if err := meta.Get("feh_subscribe", &config); err != nil {
+		log.Fatalln("Failed to get feh_subscribe metadata:", err)
 	}
+	dialer.Host = config.SMTPServer
+	dialer.Port = config.SMTPServerPort
+	dialer.Account = config.From
+	dialer.Password = config.Password
+	to = config.To
 	return
 }
 
 func getGithub() (config Github) {
-	m, err := metadataConfig.Get("feh_github")
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := json.Unmarshal(m, &config); err != nil {
+	if err := meta.Get("feh_github", &config); err != nil {
 		log.Fatal(err)
 	}
 	return

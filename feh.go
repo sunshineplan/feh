@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/anaskhan96/soup"
-	"github.com/sunshineplan/utils/retry"
+	"github.com/sunshineplan/utils"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -49,7 +49,7 @@ func (s *Scoreboard) Formatter() string {
 func scrape() (event int, round int, fullScoreboard []Scoreboard) {
 	var body string
 	var err error
-	if err := retry.Do(
+	if err := utils.Retry(
 		func() (err error) {
 			body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
 			return

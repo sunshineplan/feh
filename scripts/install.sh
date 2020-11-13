@@ -5,24 +5,24 @@ installSoftware() {
 }
 
 installFEH() {
-    curl -Lo- https://github.com/sunshineplan/feh-go/archive/v1.0.tar.gz | tar zxC /etc
-    mv /etc/feh-go* /etc/feh-go
-    cd /etc/feh-go
-    go build
+    curl -Lo- https://github.com/sunshineplan/feh/archive/v1.0.tar.gz | tar zxC /etc
+    mv /etc/feh* /etc/feh
+    cd /etc/feh
+    go build -ldflags "-s -w" -o feh
 }
 
 configFEH() {
     read -p 'Please enter metadata server: ' server
     read -p 'Please enter VerifyHeader header: ' header
     read -p 'Please enter VerifyHeader value: ' value
-    sed "s,\$server,$server," /etc/feh-go/config.ini.default > /etc/feh-go/config.ini
-    sed -i "s/\$header/$header/" /etc/feh-go/config.ini
-    sed -i "s/\$value/$value/" /etc/feh-go/config.ini
+    sed "s,\$server,$server," /etc/feh/config.ini.default > /etc/feh/config.ini
+    sed -i "s/\$header/$header/" /etc/feh/config.ini
+    sed -i "s/\$value/$value/" /etc/feh/config.ini
 }
 
 createCronTask() {
-    cp -s /etc/feh-go/scripts/feh-go.cron /etc/cron.d/feh-go
-    chmod 644 /etc/feh-go/feh-go.cron
+    cp -s /etc/feh/scripts/feh.cron /etc/cron.d/feh
+    chmod 644 /etc/feh/feh.cron
 }
 
 main() {
