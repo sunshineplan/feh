@@ -68,9 +68,11 @@ jobs:
           prerelease: false
 
       - name: Build
-        run: go build -ldflags "-s -w" -o feh ./cmd
+        run: |
+          go build -ldflags "-s -w" -o feh ./cmd
+          go build -ldflags "-s -w" -o actions ./actions
 
-      - name: Upload Release Asset
+      - name: Upload feh
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,4 +80,14 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./feh
           asset_name: feh
+          asset_content_type: application/octet-stream
+
+      - name: Upload actions
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./actions
+          asset_name: actions
           asset_content_type: application/octet-stream
