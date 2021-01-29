@@ -14,6 +14,7 @@ var db = mongodb.Config{
 	Collection: "feh",
 	Username:   "feh",
 	Password:   "feh",
+	SRV:        true,
 }
 
 var dialer mail.Dialer
