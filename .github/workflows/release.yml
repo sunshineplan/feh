@@ -70,7 +70,7 @@ jobs:
       - name: Build
         run: |
           go build -ldflags "-s -w" -o feh ./cmd
-          go build -ldflags "-s -w" -o actions ./actions
+          go build -ldflags "-s -w" -o run ./actions
 
       - name: Upload feh
         uses: actions/upload-release-asset@v1
@@ -82,12 +82,12 @@ jobs:
           asset_name: feh
           asset_content_type: application/octet-stream
 
-      - name: Upload actions
+      - name: Upload run
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./actions
-          asset_name: actions
+          asset_path: ./run
+          asset_name: run
           asset_content_type: application/octet-stream
