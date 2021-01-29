@@ -40,6 +40,8 @@ func main() {
 	iniflags.SetAllowMissingConfigFile(true)
 	iniflags.Parse()
 
+	initMongo()
+
 	switch flag.NArg() {
 	case 0:
 		update()

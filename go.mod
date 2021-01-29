@@ -1,4 +1,4 @@
-module github.com/sunshineplan/feh
+module feh
 
 go 1.15
 
@@ -7,10 +7,9 @@ require (
 	github.com/go-mail/mail v2.3.1+incompatible // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
-	github.com/sunshineplan/metadata v0.0.0-20200803020007-3027c995551f
-	github.com/sunshineplan/utils v0.0.0-20201112132214-a65f6c365251
+	github.com/sunshineplan/utils v0.0.0-20210128013712-11aed7662a85
 	github.com/vharitonsky/iniflags v0.0.0-20180513140207-a33cd0b5f3de
-	go.mongodb.org/mongo-driver v1.4.3
-	golang.org/x/oauth2 v0.0.0-20201109201403-9fd604954f58
-	golang.org/x/text v0.3.4
+	go.mongodb.org/mongo-driver v1.4.5
+	golang.org/x/oauth2 v0.0.0-20210126194326-f9ce19ea3013
+	golang.org/x/text v0.3.5
 )

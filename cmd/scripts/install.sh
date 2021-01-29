@@ -2,28 +2,29 @@
 
 installSoftware() {
     apt -qq -y install mongodb-org-tools
-    apt -qq -y -t $(lsb_release -sc)-backports install golang-go
 }
 
 installFEH() {
-    curl -Lo- https://github.com/sunshineplan/feh/archive/v1.0.tar.gz | tar zxC /etc
-    mv /etc/feh* /etc/feh
-    cd /etc/feh/cmd
-    go build -ldflags "-s -w" -o feh
+    mkdir -p /etc/feh
+    cd /etc/feh
+    curl -LO https://github.com/sunshineplan/feh/releases/download/v1.0/feh
+    curl -LO https://raw.githubusercontent.com/sunshineplan/feh/main/cmd/scripts/feh.cron
+    curl -LO https://raw.githubusercontent.com/sunshineplan/feh/main/cmd/config.ini.default
+    chmod +x feh
 }
 
 configFEH() {
     read -p 'Please enter metadata server: ' server
     read -p 'Please enter VerifyHeader header: ' header
     read -p 'Please enter VerifyHeader value: ' value
-    sed "s,\$server,$server," /etc/feh/cmd/config.ini.default > /etc/feh/cmd/config.ini
-    sed -i "s/\$header/$header/" /etc/feh/cmd/config.ini
-    sed -i "s/\$value/$value/" /etc/feh/cmd/config.ini
+    sed "s,\$server,$server," /etc/feh/config.ini.default > /etc/feh/config.ini
+    sed -i "s/\$header/$header/" /etc/feh/config.ini
+    sed -i "s/\$value/$value/" /etc/feh/config.ini
 }
 
 createCronTask() {
-    cp -s /etc/feh/cmd/scripts/feh.cron /etc/cron.d/feh
-    chmod 644 /etc/feh/cmd/scripts/feh.cron
+    cp -s /etc/feh/feh.cron /etc/cron.d/feh
+    chmod 644 /etc/feh/feh.cron
 }
 
 main() {

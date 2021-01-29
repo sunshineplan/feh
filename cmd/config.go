@@ -9,11 +9,10 @@ import (
 
 var meta metadata.Server
 
-func getMongo() (config mongoConfig) {
-	if err := meta.Get("feh_mongo", &config); err != nil {
+func initMongo() {
+	if err := meta.Get("feh_mongo", &db); err != nil {
 		log.Fatal(err)
 	}
-	return
 }
 
 func getSubscribe() (dialer *mail.Dialer, to []string) {

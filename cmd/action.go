@@ -7,7 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sunshineplan/feh"
+	"feh"
+
 	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
 )
@@ -68,7 +69,10 @@ func update() {
 }
 
 func backup() {
-	file := dump()
+	file := "backup.tmp"
+	if err := db.Backup(file); err != nil {
+		log.Fatal(err)
+	}
 	defer os.Remove(file)
 	dialer, to := getSubscribe()
 	if err := utils.Retry(

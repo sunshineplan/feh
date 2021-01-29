@@ -3,57 +3,29 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"os/exec"
 	"time"
 
-	"github.com/sunshineplan/feh"
-	"github.com/sunshineplan/utils"
+	"feh"
+
+	"github.com/sunshineplan/utils/database/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-type mongoConfig struct {
-	Server     string
-	Port       int
-	Database   string
-	Collection string
-	Username   string
-	Password   string
-}
-
-func connect() (*mongo.Client, mongoConfig) {
-	var client *mongo.Client
-	c := getMongo()
-	if err := utils.Retry(
-		func() (err error) {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
-			client, err = mongo.Connect(ctx, options.Client().ApplyURI(
-				fmt.Sprintf("mongodb://%s:%s@%s:%d/%s", c.Username, c.Password, c.Server, c.Port, c.Database)))
-			if err != nil {
-				return
-			}
-			ctx, cancelPing := context.WithTimeout(context.Background(), 2*time.Second)
-			defer cancelPing()
-			err = client.Ping(ctx, readpref.Primary())
-			return
-		}, 3, 10); err != nil {
-		log.Fatal(err)
-	}
-	return client, c
-}
+var db mongodb.Config
 
 func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, config := connect()
+	client, err := db.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer client.Disconnect(ctx)
-	collection := client.Database(config.Database).Collection(config.Collection)
+	collection := client.Database(db.Database).Collection(db.Collection)
 	for _, scoreboard := range fullScoreboard {
 		var result bson.M
 		if err := collection.FindOne(
@@ -121,9 +93,12 @@ func converter(d []bson.D) string {
 func result(event int) (string, string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, config := connect()
+	client, err := db.Open()
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer client.Disconnect(ctx)
-	collection := client.Database(config.Database).Collection(config.Collection)
+	collection := client.Database(db.Database).Collection(db.Collection)
 	var detail, summary []bson.D
 
 	opts := options.Find()
@@ -180,27 +155,4 @@ func result(event int) (string, string) {
 		log.Fatal(err)
 	}
 	return converter(detail), converter(summary)
-}
-
-func dump() string {
-	tmpfile, err := ioutil.TempFile("", "tmp")
-	if err != nil {
-		log.Fatal(err)
-	}
-	tmpfile.Close()
-
-	mongoConfig := getMongo()
-	args := []string{}
-	args = append(args, fmt.Sprintf("-h%s:%d", mongoConfig.Server, mongoConfig.Port))
-	args = append(args, fmt.Sprintf("-d%s", mongoConfig.Database))
-	args = append(args, fmt.Sprintf("-c%s", mongoConfig.Collection))
-	args = append(args, fmt.Sprintf("-u%s", mongoConfig.Username))
-	args = append(args, fmt.Sprintf("-p%s", mongoConfig.Password))
-	args = append(args, "--gzip")
-	args = append(args, fmt.Sprintf("--archive=%s", tmpfile.Name()))
-	cmd := exec.Command("mongodump", args...)
-	if err := cmd.Run(); err != nil {
-		log.Fatal(err)
-	}
-	return tmpfile.Name()
 }

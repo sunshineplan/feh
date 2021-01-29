@@ -1,3 +1,3 @@
-3 * * * *	root /etc/feh/cmd/feh
-0 14 10 * *	root /etc/feh/cmd/feh upload
-0 9 11 * *	root /etc/feh/cmd/feh backup
+3 * * * *	root /etc/feh/feh
+0 14 10 * *	root /etc/feh/feh upload
+0 9 11 * *	root /etc/feh/feh backup
