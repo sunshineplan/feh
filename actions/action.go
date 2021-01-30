@@ -90,7 +90,7 @@ func backup() {
 	}
 }
 
-func upload() {
+func commit() {
 	event, _, _ := feh.Scrape()
 	detail, summary := result(event)
 	if detail == "" {

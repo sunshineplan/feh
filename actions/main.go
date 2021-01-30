@@ -43,8 +43,8 @@ func main() {
 		update()
 	case "backup":
 		backup()
-	case "upload":
-		upload()
+	case "commit":
+		commit()
 	default:
 		log.Fatalln("Unknown argument:", flag.Arg(0))
 	}
