@@ -41,7 +41,7 @@ func update() {
 							&mail.Message{
 								To:      []string{to},
 								Subject: fmt.Sprintf(title, event, feh.Round[extra], time.Now().Format("20060102 15:00:00")),
-								Body:    fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
+								Body:    fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:04:05")),
 							})
 					}, 3, 10); err != nil {
 					log.Fatal("Mail result failed.")
@@ -57,7 +57,7 @@ func update() {
 					&mail.Message{
 						To:      []string{to},
 						Subject: fmt.Sprintf(title, event, feh.Round[round], time.Now().Format("20060102 15:00:00")),
-						Body:    fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
+						Body:    fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:04:05")),
 					})
 			}, 3, 10); err != nil {
 			log.Fatal("Mail result failed.")
@@ -90,6 +90,17 @@ func upload() {
 		log.Fatal("No data in database.")
 	}
 
+	f, err := os.Create("message")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(fmt.Sprintf("FEH 投票大戦第%d回", event))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	c := make(chan error)
 	go func() {
 		f, err := os.Create(fmt.Sprintf("FEH 投票大戦第%d回.json", event))
@@ -104,7 +115,7 @@ func upload() {
 		c <- err
 	}()
 
-	f, err := os.Create(fmt.Sprintf("FEH 投票大戦第%d回結果一覧.json", event))
+	f, err = os.Create(fmt.Sprintf("FEH 投票大戦第%d回結果一覧.json", event))
 	if err != nil {
 		log.Fatal(err)
 	}
