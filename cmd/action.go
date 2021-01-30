@@ -32,11 +32,12 @@ func update() {
 				extraContent = append(extraContent, item.Formatter())
 			}
 		}
+
 		dialer, to := getSubscribe()
-		c := make(chan int, 1)
+		c := make(chan error, 1)
 		if extra != 0 {
 			go func() {
-				if err := utils.Retry(
+				c <- utils.Retry(
 					func() error {
 						return dialer.Send(
 							&mail.Message{
@@ -44,14 +45,12 @@ func update() {
 								Subject: fmt.Sprintf(title, event, feh.Round[extra], time.Now().Format("20060102 15:00:00")),
 								Body:    fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:00:00")),
 							})
-					}, 3, 10); err != nil {
-					log.Fatal("Mail result failed.")
-				}
-				c <- 1
+					}, 3, 10)
 			}()
 		} else {
-			c <- 1
+			c <- nil
 		}
+
 		if err := utils.Retry(
 			func() error {
 				return dialer.Send(
@@ -61,11 +60,14 @@ func update() {
 						Body:    fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:00:00")),
 					})
 			}, 3, 10); err != nil {
-			log.Fatal("Mail result failed.")
+			log.Fatal(err)
 		}
-		<-c
+
+		if err := <-c; err != nil {
+			log.Fatal(err)
+		}
 	}
-	fmt.Println("Update FEH done.")
+	log.Print("Update FEH done.")
 }
 
 func backup() {
@@ -84,9 +86,9 @@ func backup() {
 					Attachments: []*mail.Attachment{{Path: file, Filename: "database"}},
 				})
 		}, 3, 10); err != nil {
-		return
+		log.Fatal(err)
 	}
-	fmt.Println("Backup FEH done.")
+	log.Print("Backup FEH done.")
 }
 
 func upload(e int) {
@@ -100,20 +102,28 @@ func upload(e int) {
 	} else {
 		detail, summary = result(e)
 		if detail == "" {
-			fmt.Printf("No result for event %d. Use last event result instead.\n", e)
+			log.Printf("No result for event %d. Use last event result instead.", e)
 			upload(0)
 			return
 		}
 	}
-	c := make(chan int)
+
+	c := make(chan error)
 	go func() {
-		if err := commit(fmt.Sprintf("FEH 投票大戦第%d回", e), detail); err == nil {
-			fmt.Printf("FEH 投票大戦第%d回.json uploaded.\n", e)
+		err := commit(fmt.Sprintf("FEH 投票大戦第%d回", e), detail)
+		if err == nil {
+			log.Printf("FEH 投票大戦第%d回.json uploaded.", e)
 		}
-		c <- 1
+		c <- err
 	}()
+
 	if err := commit(fmt.Sprintf("FEH 投票大戦第%d回結果一覧", e), summary); err == nil {
-		fmt.Printf("FEH 投票大戦第%d回結果一覧.json uploaded.\n", e)
+		log.Printf("FEH 投票大戦第%d回結果一覧.json uploaded.", e)
+	} else {
+		log.Fatal(err)
 	}
-	<-c
+
+	if err := <-c; err != nil {
+		log.Fatal(err)
+	}
 }

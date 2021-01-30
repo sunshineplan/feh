@@ -46,6 +46,6 @@ func main() {
 	case "upload":
 		upload()
 	default:
-		log.Fatalf("Unknown argument: %s", flag.Arg(0))
+		log.Fatalln("Unknown argument:", flag.Arg(0))
 	}
 }

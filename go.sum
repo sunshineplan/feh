@@ -177,8 +177,6 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/sunshineplan/utils v0.0.0-20210129133214-e5590174da7d h1:1/qX0eCciM7xT+aJCPNHwhYvYwDLdbHA0DHiBQ4GbY4=
-github.com/sunshineplan/utils v0.0.0-20210129133214-e5590174da7d/go.mod h1:fJ8/Fjbd50RwQ8/wxBmBgkuDHfcXrCJu6c/iRsgkYok=
 github.com/sunshineplan/utils v0.0.0-20210130013908-a22cf40f6785 h1:yrMg5kcDnLFtPInBh+iRmjH0cXX3REHtg5OcsM+NOHY=
 github.com/sunshineplan/utils v0.0.0-20210130013908-a22cf40f6785/go.mod h1:fJ8/Fjbd50RwQ8/wxBmBgkuDHfcXrCJu6c/iRsgkYok=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=

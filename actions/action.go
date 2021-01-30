@@ -32,10 +32,11 @@ func update() {
 				extraContent = append(extraContent, item.Formatter())
 			}
 		}
-		c := make(chan int, 1)
+
+		c := make(chan error, 1)
 		if extra != 0 {
 			go func() {
-				if err := utils.Retry(
+				c <- utils.Retry(
 					func() error {
 						return dialer.Send(
 							&mail.Message{
@@ -45,14 +46,12 @@ func update() {
 								Body: fmt.Sprintf(body, strings.Join(extraContent, "\n"),
 									time.Now().In(timezone).Format("20060102 15:04:05")),
 							})
-					}, 3, 10); err != nil {
-					log.Fatal("Mail result failed.")
-				}
-				c <- 1
+					}, 3, 10)
 			}()
 		} else {
-			c <- 1
+			c <- nil
 		}
+
 		if err := utils.Retry(
 			func() error {
 				return dialer.Send(
@@ -64,9 +63,12 @@ func update() {
 							time.Now().In(timezone).Format("20060102 15:04:05")),
 					})
 			}, 3, 10); err != nil {
-			log.Fatal("Mail result failed.")
+			log.Fatal(err)
 		}
-		<-c
+
+		if err := <-c; err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -84,7 +86,7 @@ func backup() {
 					Attachments: []*mail.Attachment{{Path: "backup", Filename: "database"}},
 				})
 		}, 3, 10); err != nil {
-		return
+		log.Fatal(err)
 	}
 }
 

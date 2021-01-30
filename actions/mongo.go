@@ -109,7 +109,7 @@ func result(event int) (string, string) {
 		log.Fatal(err)
 	}
 	defer detailCur.Close(ctx)
-	if err = detailCur.All(ctx, &detail); err != nil {
+	if err := detailCur.All(ctx, &detail); err != nil {
 		log.Fatal(err)
 	}
 	if len(detail) == 0 {
@@ -148,7 +148,7 @@ func result(event int) (string, string) {
 		log.Fatal(err)
 	}
 	defer summaryCur.Close(ctx)
-	if err = summaryCur.All(ctx, &summary); err != nil {
+	if err := summaryCur.All(ctx, &summary); err != nil {
 		log.Fatal(err)
 	}
 	return converter(detail), converter(summary)
