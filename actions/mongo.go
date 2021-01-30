@@ -36,7 +36,7 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
 			log.Fatal(err)
 		}
 
-		t := time.Now()
+		t := time.Now().In(timezone)
 		r, err := collection.UpdateOne(
 			ctx,
 			bson.M{
@@ -50,7 +50,7 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
 			bson.M{
 				"$setOnInsert": bson.D{
 					bson.E{Key: "event", Value: scoreboard.Event},
-					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.Local)},
+					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, timezone)},
 					bson.E{Key: "hour", Value: t.Hour()},
 					bson.E{Key: "round", Value: scoreboard.Round}}},
 			options.Update().SetUpsert(true),
@@ -70,7 +70,7 @@ func converter(d []bson.D) string {
 	for index, item := range d {
 		for i, e := range item {
 			if e.Key == "date" {
-				item[i].Value = e.Value.(primitive.DateTime).Time().Format("2006-01-02")
+				item[i].Value = e.Value.(primitive.DateTime).Time().In(timezone).Format("2006-01-02")
 				break
 			}
 		}

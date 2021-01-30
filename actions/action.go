@@ -39,9 +39,11 @@ func update() {
 					func() error {
 						return dialer.Send(
 							&mail.Message{
-								To:      []string{to},
-								Subject: fmt.Sprintf(title, event, feh.Round[extra], time.Now().Format("20060102 15:00:00")),
-								Body:    fmt.Sprintf(body, strings.Join(extraContent, "\n"), time.Now().Format("20060102 15:04:05")),
+								To: []string{to},
+								Subject: fmt.Sprintf(title, event, feh.Round[extra],
+									time.Now().In(timezone).Format("20060102 15:00:00")),
+								Body: fmt.Sprintf(body, strings.Join(extraContent, "\n"),
+									time.Now().In(timezone).Format("20060102 15:04:05")),
 							})
 					}, 3, 10); err != nil {
 					log.Fatal("Mail result failed.")
@@ -55,9 +57,11 @@ func update() {
 			func() error {
 				return dialer.Send(
 					&mail.Message{
-						To:      []string{to},
-						Subject: fmt.Sprintf(title, event, feh.Round[round], time.Now().Format("20060102 15:00:00")),
-						Body:    fmt.Sprintf(body, strings.Join(content, "\n"), time.Now().Format("20060102 15:04:05")),
+						To: []string{to},
+						Subject: fmt.Sprintf(title, event, feh.Round[round],
+							time.Now().In(timezone).Format("20060102 15:00:00")),
+						Body: fmt.Sprintf(body, strings.Join(content, "\n"),
+							time.Now().In(timezone).Format("20060102 15:04:05")),
 					})
 			}, 3, 10); err != nil {
 			log.Fatal("Mail result failed.")
@@ -74,8 +78,9 @@ func backup() {
 		func() error {
 			return dialer.Send(
 				&mail.Message{
-					To:          []string{to},
-					Subject:     fmt.Sprintf("FEH Backup-%s", time.Now().Format("20060102")),
+					To: []string{to},
+					Subject: fmt.Sprintf("FEH Backup-%s",
+						time.Now().In(timezone).Format("20060102")),
 					Attachments: []*mail.Attachment{{Path: "backup", Filename: "database"}},
 				})
 		}, 3, 10); err != nil {
