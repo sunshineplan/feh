@@ -20,16 +20,19 @@ func update() {
 	)
 
 	var event, round int
-	var fullScoreboard []feh.Scoreboard
+	var fullScoreboard, newScoreboard []feh.Scoreboard
 	if err := utils.Retry(
 		func() (err error) {
 			event, round, fullScoreboard, err = feh.Scrape()
+			if err != nil {
+				return
+			}
+			newScoreboard, err = record(fullScoreboard)
 			return
 		}, 5, 60); err != nil {
 		log.Fatal(err)
 	}
 
-	newScoreboard := record(fullScoreboard)
 	if newScoreboard != nil {
 		var content []string
 		var extra int
@@ -82,10 +85,14 @@ func update() {
 
 func backup() {
 	file := "backup.tmp"
-	if err := db.Backup(file); err != nil {
+	if err := utils.Retry(
+		func() error {
+			return db.Backup(file)
+		}, 3, 60); err != nil {
 		log.Fatal(err)
 	}
 	defer os.Remove(file)
+
 	dialer, to := getSubscribe()
 	if err := utils.Retry(
 		func() error {
@@ -107,16 +114,25 @@ func upload(e int) {
 		if err := utils.Retry(
 			func() (err error) {
 				e, _, _, err = feh.Scrape()
+				if err != nil {
+					return
+				}
+				detail, summary, err = result(e)
 				return
 			}, 5, 60); err != nil {
 			log.Fatal(err)
 		}
-		detail, summary = result(e)
 		if detail == "" {
 			log.Fatal("No data in database.")
 		}
 	} else {
-		detail, summary = result(e)
+		if err := utils.Retry(
+			func() (err error) {
+				detail, summary, err = result(e)
+				return
+			}, 5, 60); err != nil {
+			log.Fatal(err)
+		}
 		if detail == "" {
 			log.Printf("No result for event %d. Use last event result instead.", e)
 			upload(0)

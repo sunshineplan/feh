@@ -20,16 +20,19 @@ func update() {
 	)
 
 	var event, round int
-	var fullScoreboard []feh.Scoreboard
+	var fullScoreboard, newScoreboard []feh.Scoreboard
 	if err := utils.Retry(
 		func() (err error) {
 			event, round, fullScoreboard, err = feh.Scrape()
+			if err != nil {
+				return
+			}
+			newScoreboard, err = record(fullScoreboard)
 			return
 		}, 5, 60); err != nil {
 		log.Fatal(err)
 	}
 
-	newScoreboard := record(fullScoreboard)
 	if newScoreboard != nil {
 		var content []string
 		var extra int
@@ -83,9 +86,13 @@ func update() {
 }
 
 func backup() {
-	if err := db.Backup("backup"); err != nil {
+	if err := utils.Retry(
+		func() error {
+			return db.Backup("backup")
+		}, 3, 60); err != nil {
 		log.Fatal(err)
 	}
+
 	if err := utils.Retry(
 		func() error {
 			return dialer.Send(
@@ -102,15 +109,19 @@ func backup() {
 
 func commit() {
 	var event int
+	var detail, summary string
 	if err := utils.Retry(
 		func() (err error) {
 			event, _, _, err = feh.Scrape()
+			if err != nil {
+				return
+			}
+			detail, summary, err = result(event)
 			return
 		}, 5, 60); err != nil {
 		log.Fatal(err)
 	}
 
-	detail, summary := result(event)
 	if detail == "" {
 		log.Fatal("No data in database.")
 	}

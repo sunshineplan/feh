@@ -14,18 +14,21 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
+func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	client, err := db.Open()
+
+	var client *mongo.Client
+	client, err = db.Open()
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	defer client.Disconnect(ctx)
+
 	collection := client.Database(db.Database).Collection(db.Collection)
 	for _, scoreboard := range fullScoreboard {
 		var result bson.M
-		if err := collection.FindOne(
+		if err = collection.FindOne(
 			ctx,
 			bson.M{"event": scoreboard.Event,
 				"scoreboard.hero": bson.M{"$all": bson.A{scoreboard.Hero1, scoreboard.Hero2}}},
@@ -33,11 +36,12 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
 		).Decode(&result); err == nil {
 			scoreboard.Round = int(result["round"].(int32))
 		} else if err != mongo.ErrNoDocuments {
-			log.Fatal(err)
+			return
 		}
 
 		t := time.Now().In(timezone)
-		r, err := collection.UpdateOne(
+		var r *mongo.UpdateResult
+		r, err = collection.UpdateOne(
 			ctx,
 			bson.M{
 				"scoreboard": bson.A{
@@ -56,12 +60,14 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard) {
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
+
 		if r.UpsertedCount == 1 {
 			newScoreboard = append(newScoreboard, scoreboard)
 		}
 	}
+
 	return
 }
 
@@ -87,14 +93,16 @@ func converter(d []bson.D) string {
 	return fmt.Sprintf("[%s]", output)
 }
 
-func result(event int) (string, string) {
+func result(event int) (string, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
 	client, err := db.Open()
 	if err != nil {
-		log.Fatal(err)
+		return "", "", err
 	}
 	defer client.Disconnect(ctx)
+
 	collection := client.Database(db.Database).Collection(db.Collection)
 	var detail, summary []bson.D
 
@@ -106,14 +114,16 @@ func result(event int) (string, string) {
 		bson.E{Key: "date", Value: 1}})
 	detailCur, err := collection.Find(ctx, bson.M{"event": event}, opts)
 	if err != nil {
-		log.Fatal(err)
+		return "", "", err
 	}
 	defer detailCur.Close(ctx)
+
 	if err := detailCur.All(ctx, &detail); err != nil {
-		log.Fatal(err)
+		return "", "", err
 	}
+
 	if len(detail) == 0 {
-		return "", ""
+		return "", "", nil
 	}
 
 	var pipeline []interface{}
@@ -145,11 +155,13 @@ func result(event int) (string, string) {
 			bson.E{Key: "scoreboard", Value: 1}}})
 	summaryCur, err := collection.Aggregate(ctx, pipeline)
 	if err != nil {
-		log.Fatal(err)
+		return "", "", err
 	}
 	defer summaryCur.Close(ctx)
+
 	if err := summaryCur.All(ctx, &summary); err != nil {
-		log.Fatal(err)
+		return "", "", err
 	}
-	return converter(detail), converter(summary)
+
+	return converter(detail), converter(summary), nil
 }
