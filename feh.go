@@ -2,12 +2,10 @@ package feh
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/anaskhan96/soup"
-	"github.com/sunshineplan/utils"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
@@ -47,35 +45,34 @@ func (s *Scoreboard) Formatter() string {
 }
 
 // Scrape scrapes fireemblem heroes voting gauntlet informations.
-func Scrape() (event int, round int, fullScoreboard []Scoreboard) {
+func Scrape() (event int, round int, fullScoreboard []Scoreboard, err error) {
 	var body string
-	var err error
-	if err := utils.Retry(
-		func() (err error) {
-			body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
-			return
-		}, 3, 10); err != nil {
-		log.Fatal(err)
+	body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
+	if err != nil {
+		return
 	}
+
 	doc := soup.HTMLParse(body)
 	for _, class := range strings.Split(doc.Find("div", "class", "title-section").Attrs()["class"], " ") {
 		if strings.Contains(class, "cover") {
 			event, err = strconv.Atoi(strings.Split(class, "-")[1])
 			if err != nil {
-				log.Fatal(err)
+				return
 			}
 			break
 		}
 	}
+
 	for _, class := range strings.Split(doc.Find("h2", "class", "title-section").Attrs()["class"], " ") {
 		if strings.Contains(class, "tournament") {
 			round, err = strconv.Atoi(strings.Split(class, "-")[2])
 			if err != nil {
-				log.Fatal(err)
+				return
 			}
 			break
 		}
 	}
+
 	allBattles := doc.FindAll("li", "class", "tournaments-battle")
 	for _, battle := range allBattles {
 		var scoreboard Scoreboard
@@ -85,14 +82,15 @@ func Scrape() (event int, round int, fullScoreboard []Scoreboard) {
 		scoreboard.Hero1 = content[0].Text()
 		scoreboard.Score1, err = strconv.Atoi(strings.Replace(content[1].Text(), ",", "", -1))
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
 		scoreboard.Hero2 = content[2].Text()
 		scoreboard.Score2, err = strconv.Atoi(strings.Replace(content[3].Text(), ",", "", -1))
 		if err != nil {
-			log.Fatal(err)
+			return
 		}
 		fullScoreboard = append(fullScoreboard, scoreboard)
 	}
+
 	return
 }

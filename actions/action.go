@@ -18,7 +18,17 @@ func update() {
 		title = "FEH 投票大戦第%d回 %s - %s"
 		body  = "%s\n\n%s"
 	)
-	event, round, fullScoreboard := feh.Scrape()
+
+	var event, round int
+	var fullScoreboard []feh.Scoreboard
+	if err := utils.Retry(
+		func() (err error) {
+			event, round, fullScoreboard, err = feh.Scrape()
+			return
+		}, 5, 60); err != nil {
+		log.Fatal(err)
+	}
+
 	newScoreboard := record(fullScoreboard)
 	if newScoreboard != nil {
 		var content []string
@@ -91,7 +101,15 @@ func backup() {
 }
 
 func commit() {
-	event, _, _ := feh.Scrape()
+	var event int
+	if err := utils.Retry(
+		func() (err error) {
+			event, _, _, err = feh.Scrape()
+			return
+		}, 5, 60); err != nil {
+		log.Fatal(err)
+	}
+
 	detail, summary := result(event)
 	if detail == "" {
 		log.Fatal("No data in database.")
