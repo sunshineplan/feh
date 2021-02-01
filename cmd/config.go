@@ -25,6 +25,7 @@ func getSubscribe() (dialer *mail.Dialer, to []string) {
 	if err := meta.Get("feh_subscribe", &config); err != nil {
 		log.Fatalln("Failed to get feh_subscribe metadata:", err)
 	}
+	dialer = new(mail.Dialer)
 	dialer.Host = config.SMTPServer
 	dialer.Port = config.SMTPServerPort
 	dialer.Account = config.From
