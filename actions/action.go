@@ -38,11 +38,13 @@ func update() {
 		var extra int
 		var extraContent []string
 		for _, item := range newScoreboard {
+			score := item.Formatter()
+			fmt.Printf("第%d回 %s: %s\n", event, feh.Round[item.Round], score)
 			if item.Round == round {
-				content = append(content, item.Formatter())
+				content = append(content, score)
 			} else {
 				extra = item.Round
-				extraContent = append(extraContent, item.Formatter())
+				extraContent = append(extraContent, score)
 			}
 		}
 
