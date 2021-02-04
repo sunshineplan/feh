@@ -25,9 +25,13 @@ func update() {
 		func() (err error) {
 			event, round, fullScoreboard, err = feh.Scrape()
 			if err != nil {
+				log.Print(err)
 				return
 			}
 			newScoreboard, err = record(fullScoreboard)
+			if err != nil {
+				log.Print(err)
+			}
 			return
 		}, 5, 60); err != nil {
 		log.Fatal(err)
