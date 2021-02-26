@@ -13,7 +13,7 @@ import (
 	"github.com/sunshineplan/utils/mail"
 )
 
-func update() {
+func update() error {
 	const (
 		title = "FEH 投票大戦第%d回 %s - %s"
 		body  = "%s\n\n%s"
@@ -34,7 +34,7 @@ func update() {
 			}
 			return
 		}, 5, 60); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if newScoreboard != nil {
@@ -82,13 +82,15 @@ func update() {
 							time.Now().In(timezone).Format("20060102 15:04:05")),
 					})
 			}, 3, 10); err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		if err := <-c; err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
+
+	return nil
 }
 
 func backup() {

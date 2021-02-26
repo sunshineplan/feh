@@ -5,12 +5,13 @@ import (
 	"log"
 	"time"
 
+	"feh"
+
 	"github.com/sunshineplan/utils/database/mongodb"
 	"github.com/sunshineplan/utils/mail"
 )
 
 var db = mongodb.Config{
-	Port:       27017,
 	Database:   "feh",
 	Collection: "feh",
 	Username:   "feh",
@@ -40,7 +41,13 @@ func main() {
 
 	switch flag.Arg(0) {
 	case "update":
-		update()
+		if err := update(); err != nil {
+			if err == feh.ErrEventNotOpen {
+				log.Print(err.Error())
+			} else {
+				log.Fatal(err)
+			}
+		}
 	case "backup":
 		backup()
 	case "commit":

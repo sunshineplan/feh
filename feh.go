@@ -10,6 +10,9 @@ import (
 	"golang.org/x/text/message"
 )
 
+// ErrEventNotOpen is an error when event is not open.
+var ErrEventNotOpen = fmt.Errorf("Event not open yet")
+
 // Round string
 var Round = map[int]string{1: "Round1", 2: "Round2", 3: "Final Round"}
 
@@ -80,13 +83,15 @@ func Scrape() (event int, round int, fullScoreboard []Scoreboard, err error) {
 		scoreboard.Round = round
 		content := battle.FindAll("p")
 		scoreboard.Hero1 = content[0].Text()
-		scoreboard.Score1, err = strconv.Atoi(strings.Replace(content[1].Text(), ",", "", -1))
+		scoreboard.Score1, err = strconv.Atoi(strings.ReplaceAll(content[1].Text(), ",", ""))
 		if err != nil {
+			err = ErrEventNotOpen
 			return
 		}
 		scoreboard.Hero2 = content[2].Text()
-		scoreboard.Score2, err = strconv.Atoi(strings.Replace(content[3].Text(), ",", "", -1))
+		scoreboard.Score2, err = strconv.Atoi(strings.ReplaceAll(content[3].Text(), ",", ""))
 		if err != nil {
+			err = ErrEventNotOpen
 			return
 		}
 		fullScoreboard = append(fullScoreboard, scoreboard)
