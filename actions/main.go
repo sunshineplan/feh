@@ -5,8 +5,7 @@ import (
 	"log"
 	"time"
 
-	"feh"
-
+	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/database/mongodb"
 	"github.com/sunshineplan/utils/mail"
 )
@@ -42,8 +41,8 @@ func main() {
 	switch flag.Arg(0) {
 	case "update":
 		if err := update(); err != nil {
-			if err == feh.ErrEventNotOpen {
-				log.Print(err.Error())
+			if err == utils.ErrNoMoreRetry {
+				log.Print("Event not open.")
 			} else {
 				log.Fatal(err)
 			}

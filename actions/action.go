@@ -25,6 +25,10 @@ func update() error {
 		func() (err error) {
 			event, round, fullScoreboard, err = feh.Scrape()
 			if err != nil {
+				if err == feh.ErrEventNotOpen {
+					err = utils.ErrNoMoreRetry
+					return
+				}
 				log.Print(err)
 				return
 			}
