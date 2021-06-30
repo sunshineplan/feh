@@ -18,13 +18,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '1.16'
-
-      - name: Prepare to build
-        run: go mod download
+          go-version: '1.x'
 
       - name: Delete Old Release
-        uses: actions/github-script@v3
+        uses: actions/github-script@v4
         with:
           script: |
             let release
@@ -51,43 +48,22 @@ jobs:
               ref: 'tags/v1.0'
             })
 
-      - name: Get Current Date
-        id: date
-        run: echo "::set-output name=date::$(TZ=CST date +'%Y-%m-%d')"
+      - name: Build
+        id: build
+        run: |
+          go mod download
+          go build -ldflags "-s -w" -o feh ./cmd
+          go build -ldflags "-s -w" -o run ./actions
+          echo "::set-output name=date::$(TZ=PRC date +'%Y-%m-%d')"
 
       - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v1.0
-          release_name: ${{ steps.date.outputs.date }}
-          body: ${{ steps.date.outputs.date }}
-          draft: false
-          prerelease: false
-
-      - name: Build
-        run: |
-          go build -ldflags "-s -w" -o feh ./cmd
-          go build -ldflags "-s -w" -o run ./actions
-
-      - name: Upload feh
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./feh
-          asset_name: feh
-          asset_content_type: application/octet-stream
-
-      - name: Upload run
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./run
-          asset_name: run
-          asset_content_type: application/octet-stream
+          name: ${{ steps.build.outputs.date }}
+          body: ${{ steps.build.outputs.date }}
+          files: |
+            feh
+            run
