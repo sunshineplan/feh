@@ -1,20 +1,20 @@
-package main
+package utils
 
 import (
 	"context"
+	"feh"
 	"fmt"
 	"log"
 	"time"
 
-	"feh"
-
+	"github.com/sunshineplan/utils/database/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard, err error) {
+func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db *mongodb.Config) (newScoreboard []feh.Scoreboard, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -39,7 +39,7 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard, er
 			return
 		}
 
-		t := time.Now().In(timezone)
+		t := time.Now().In(tz)
 		var r *mongo.UpdateResult
 		r, err = collection.UpdateOne(
 			ctx,
@@ -54,7 +54,7 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard, er
 			bson.M{
 				"$setOnInsert": bson.D{
 					bson.E{Key: "event", Value: scoreboard.Event},
-					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, timezone)},
+					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)},
 					bson.E{Key: "hour", Value: t.Hour()},
 					bson.E{Key: "round", Value: scoreboard.Round}}},
 			options.Update().SetUpsert(true),
@@ -71,12 +71,12 @@ func record(fullScoreboard []feh.Scoreboard) (newScoreboard []feh.Scoreboard, er
 	return
 }
 
-func converter(d []bson.D) string {
+func converter(d []bson.D, tz *time.Location) string {
 	var output string
 	for index, item := range d {
 		for i, e := range item {
 			if e.Key == "date" {
-				item[i].Value = e.Value.(primitive.DateTime).Time().In(timezone).Format("2006-01-02")
+				item[i].Value = e.Value.(primitive.DateTime).Time().In(tz).Format("2006-01-02")
 				break
 			}
 		}
@@ -93,7 +93,7 @@ func converter(d []bson.D) string {
 	return fmt.Sprintf("[%s]", output)
 }
 
-func result(event int) (string, string, error) {
+func result(event int, tz *time.Location, db *mongodb.Config) (string, string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -163,5 +163,5 @@ func result(event int) (string, string, error) {
 		return "", "", err
 	}
 
-	return converter(detail), converter(summary), nil
+	return converter(detail, tz), converter(summary, tz), nil
 }

@@ -8,6 +8,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
+
+	feh "feh/utils"
 
 	"github.com/vharitonsky/iniflags"
 )
@@ -43,16 +46,22 @@ func main() {
 	initMongo()
 
 	switch flag.NArg() {
-	case 0:
-		update()
-	case 1:
+	case 0, 1:
 		switch flag.Arg(0) {
-		case "update":
-			update()
+		case "", "update":
+			dialer, to := getSubscribe()
+			err = feh.Update(dialer, to, time.Local, &db)
+			if err == nil {
+				log.Print("Update FEH done.")
+			}
 		case "backup":
-			backup()
+			dialer, to := getSubscribe()
+			err = feh.Backup(dialer, to, time.Local, &db)
+			if err == nil {
+				log.Print("Backup FEH done.")
+			}
 		case "upload":
-			upload(0)
+			err = upload(0)
 		default:
 			log.Fatalf("Unknown argument: %s", flag.Arg(0))
 		}
@@ -60,13 +69,17 @@ func main() {
 		if flag.Arg(0) != "upload" {
 			log.Fatalf("Unknown arguments: %s", strings.Join(flag.Args(), " "))
 		} else {
-			event, err := strconv.Atoi(flag.Arg(1))
+			var event int
+			event, err = strconv.Atoi(flag.Arg(1))
 			if err != nil {
 				log.Fatalf("Unknown argument: upload %s", flag.Arg(1))
 			}
-			upload(event)
+			err = upload(event)
 		}
 	default:
 		log.Fatalf("Unknown arguments: %s", strings.Join(flag.Args(), " "))
+	}
+	if err != nil {
+		log.Fatal(err)
 	}
 }

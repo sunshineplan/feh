@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"fmt"
@@ -10,10 +10,11 @@ import (
 	"feh"
 
 	"github.com/sunshineplan/utils"
+	"github.com/sunshineplan/utils/database/mongodb"
 	"github.com/sunshineplan/utils/mail"
 )
 
-func update() error {
+func Update(dialer *mail.Dialer, to []string, tz *time.Location, db *mongodb.Config) error {
 	const (
 		title = "FEH 投票大戦第%d回 %s - %s"
 		body  = "%s\n\n%s"
@@ -32,7 +33,7 @@ func update() error {
 				log.Print(err)
 				return
 			}
-			newScoreboard, err = record(fullScoreboard)
+			newScoreboard, err = record(fullScoreboard, tz, db)
 			if err != nil {
 				log.Print(err)
 			}
@@ -63,11 +64,11 @@ func update() error {
 					func() error {
 						return dialer.Send(
 							&mail.Message{
-								To: []string{to},
+								To: to,
 								Subject: fmt.Sprintf(title, event, feh.Round[extra],
-									time.Now().In(timezone).Format("20060102 15:00:00")),
+									time.Now().In(tz).Format("20060102 15:00:00")),
 								Body: fmt.Sprintf(body, strings.Join(extraContent, "\n"),
-									time.Now().In(timezone).Format("20060102 15:04:05")),
+									time.Now().In(tz).Format("20060102 15:04:05")),
 							})
 					}, 3, 10)
 			}()
@@ -79,11 +80,11 @@ func update() error {
 			func() error {
 				return dialer.Send(
 					&mail.Message{
-						To: []string{to},
+						To: to,
 						Subject: fmt.Sprintf(title, event, feh.Round[round],
-							time.Now().In(timezone).Format("20060102 15:00:00")),
+							time.Now().In(tz).Format("20060102 15:00:00")),
 						Body: fmt.Sprintf(body, strings.Join(content, "\n"),
-							time.Now().In(timezone).Format("20060102 15:04:05")),
+							time.Now().In(tz).Format("20060102 15:04:05")),
 					})
 			}, 3, 10); err != nil {
 			return err
@@ -97,84 +98,58 @@ func update() error {
 	return nil
 }
 
-func backup() {
+func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *mongodb.Config) error {
+	file := "backup.tmp"
 	if err := utils.Retry(
 		func() error {
-			return db.Backup("backup")
+			return db.Backup(file)
 		}, 3, 60); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	defer os.Remove(file)
 
-	if err := utils.Retry(
+	return utils.Retry(
 		func() error {
 			return dialer.Send(
 				&mail.Message{
-					To: []string{to},
+					To: to,
 					Subject: fmt.Sprintf("FEH Backup-%s",
-						time.Now().In(timezone).Format("20060102")),
-					Attachments: []*mail.Attachment{{Path: "backup", Filename: "database"}},
+						time.Now().In(tz).Format("20060102")),
+					Attachments: []*mail.Attachment{{Path: file, Filename: "database"}},
 				})
-		}, 3, 10); err != nil {
-		log.Fatal(err)
-	}
+		}, 3, 10)
 }
 
-func commit() {
-	var event int
+func Result(event int, tz *time.Location, db *mongodb.Config) (int, string, string, error) {
 	var detail, summary string
-	if err := utils.Retry(
-		func() (err error) {
-			event, _, _, err = feh.Scrape()
-			if err != nil {
+	if event == 0 {
+		if err := utils.Retry(
+			func() (err error) {
+				event, _, _, err = feh.Scrape()
+				if err != nil {
+					return
+				}
+				detail, summary, err = result(event, tz, db)
 				return
-			}
-			detail, summary, err = result(event)
-			return
-		}, 5, 60); err != nil {
-		log.Fatal(err)
-	}
-
-	if detail == "" {
-		log.Fatal("No data in database.")
-	}
-
-	f, err := os.Create("message")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	_, err = f.WriteString(fmt.Sprintf("FEH 投票大戦第%d回", event))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	c := make(chan error)
-	go func() {
-		f, err := os.Create(fmt.Sprintf("FEH 投票大戦第%d回.json", event))
-		if err != nil {
-			c <- err
-			return
+			}, 5, 60); err != nil {
+			return 0, "", "", err
 		}
-		defer f.Close()
-
-		_, err = f.WriteString(detail)
-
-		c <- err
-	}()
-
-	f, err = os.Create(fmt.Sprintf("FEH 投票大戦第%d回結果一覧.json", event))
-	if err != nil {
-		log.Fatal(err)
+		if detail == "" {
+			return 0, "", "", fmt.Errorf("no data in database")
+		}
+	} else {
+		if err := utils.Retry(
+			func() (err error) {
+				detail, summary, err = result(event, tz, db)
+				return
+			}, 5, 60); err != nil {
+			return 0, "", "", err
+		}
+		if detail == "" {
+			log.Printf("No result for event %d. Use last event result instead.", event)
+			return Result(0, tz, db)
+		}
 	}
-	defer f.Close()
 
-	_, err = f.WriteString(summary)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := <-c; err != nil {
-		log.Fatal(err)
-	}
+	return event, detail, summary, nil
 }

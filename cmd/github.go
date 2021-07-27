@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
-	"github.com/google/go-github/github"
+	feh "feh/utils"
+
+	"github.com/google/go-github/v37/github"
 	"github.com/sunshineplan/utils"
 	"golang.org/x/oauth2"
 )
@@ -18,7 +21,7 @@ type Github struct {
 	Path       string
 }
 
-func commit(name, content string) error {
+func createFile(name, content string) error {
 	config := getGithub()
 	token := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: config.Token})
 	opts := &github.RepositoryContentFileOptions{
@@ -38,4 +41,29 @@ func commit(name, content string) error {
 				opts)
 			return err
 		}, 3, 10)
+}
+
+func upload(event int) (err error) {
+	var detail, summary string
+	event, detail, summary, err = feh.Result(event, time.Local, &db)
+	if err != nil {
+		return
+	}
+
+	c := make(chan error)
+	go func() {
+		err := createFile(fmt.Sprintf("FEH 投票大戦第%d回", event), detail)
+		if err == nil {
+			log.Printf("FEH 投票大戦第%d回.json uploaded.", event)
+		}
+		c <- err
+	}()
+
+	if err = createFile(fmt.Sprintf("FEH 投票大戦第%d回結果一覧", event), summary); err == nil {
+		log.Printf("FEH 投票大戦第%d回結果一覧.json uploaded.", event)
+	} else {
+		return
+	}
+
+	return <-c
 }

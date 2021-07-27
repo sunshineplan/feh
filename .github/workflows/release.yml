@@ -51,7 +51,6 @@ jobs:
       - name: Build
         id: build
         run: |
-          go mod download
           go build -ldflags "-s -w" -o feh ./cmd
           go build -ldflags "-s -w" -o run ./actions
           echo "::set-output name=date::$(TZ=PRC date +'%Y-%m-%d')"

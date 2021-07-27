@@ -2,8 +2,12 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
+	"os"
 	"time"
+
+	feh "feh/utils"
 
 	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/database/mongodb"
@@ -40,18 +44,42 @@ func main() {
 
 	switch flag.Arg(0) {
 	case "update":
-		if err := update(); err != nil {
-			if err == utils.ErrNoMoreRetry {
-				log.Print("Event not open.")
-			} else {
-				log.Fatal(err)
-			}
+		err = feh.Update(&dialer, []string{to}, timezone, &db)
+		if err == utils.ErrNoMoreRetry {
+			log.Fatal("Event not open.")
 		}
 	case "backup":
-		backup()
+		err = feh.Backup(&dialer, []string{to}, timezone, &db)
 	case "commit":
-		commit()
+		err = commit()
 	default:
 		log.Fatalln("Unknown argument:", flag.Arg(0))
 	}
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func commit() error {
+	event, detail, summary, err := feh.Result(0, timezone, &db)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile("message", []byte(fmt.Sprintf("FEH 投票大戦第%d回", event)), 0666)
+	if err != nil {
+		return err
+	}
+
+	c := make(chan error)
+	go func() {
+		c <- os.WriteFile(fmt.Sprintf("FEH 投票大戦第%d回.json", event), []byte(detail), 0666)
+	}()
+
+	err = os.WriteFile(fmt.Sprintf("FEH 投票大戦第%d回結果一覧.json", event), []byte(summary), 0666)
+	if err != nil {
+		return err
+	}
+
+	return <-c
 }
