@@ -46,7 +46,8 @@ func main() {
 	case "update":
 		err = feh.Update(&dialer, []string{to}, timezone, &db)
 		if err == utils.ErrNoMoreRetry {
-			log.Fatal("Event not open.")
+			log.Print("Event not open.")
+			return
 		}
 	case "backup":
 		err = feh.Backup(&dialer, []string{to}, timezone, &db)
