@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -21,7 +21,7 @@ jobs:
         with:
           go-version: '1.x'
 
-      - name: Test code
+      - name: Test Code
         run: go build -v ./...
 
   merge:

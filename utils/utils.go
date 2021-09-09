@@ -9,8 +9,8 @@ import (
 
 	"feh"
 
+	"github.com/sunshineplan/database/mongodb"
 	"github.com/sunshineplan/utils"
-	"github.com/sunshineplan/utils/database/mongodb"
 	"github.com/sunshineplan/utils/mail"
 )
 

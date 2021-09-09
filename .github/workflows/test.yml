@@ -14,7 +14,7 @@ jobs:
       matrix:
         os: [ windows-latest, ubuntu-latest, macos-latest ]
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
       - name: Setup Go
@@ -22,5 +22,5 @@ jobs:
         with:
           go-version: '1.x'
 
-      - name: Test code
+      - name: Test Code
         run: go build -v ./...
