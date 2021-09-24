@@ -31,12 +31,12 @@ jobs:
           echo "::set-output name=date::$(TZ=PRC date +'%Y-%m-%d')"
 
       - name: Delete Old Release
-        uses: actions/github-script@v4
+        uses: actions/github-script@v5
         with:
           script: |
             let release
             try {
-              release = await github.repos.getReleaseByTag({
+              release = await github.rest.repos.getReleaseByTag({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 tag: 'v1.0'
@@ -46,13 +46,13 @@ jobs:
               return
             }
 
-            await github.repos.deleteRelease({
+            await github.rest.repos.deleteRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: release.data.id
             })
 
-            await github.git.deleteRef({
+            await github.rest.git.deleteRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: 'tags/v1.0'
