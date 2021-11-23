@@ -30,8 +30,10 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db *mongodb.Conf
 		var result bson.M
 		if err = collection.FindOne(
 			ctx,
-			bson.M{"event": scoreboard.Event,
-				"scoreboard.hero": bson.M{"$all": bson.A{scoreboard.Hero1, scoreboard.Hero2}}},
+			bson.M{
+				"event":           scoreboard.Event,
+				"scoreboard.hero": bson.M{"$all": bson.A{scoreboard.Hero1, scoreboard.Hero2}},
+			},
 			options.FindOne().SetProjection(bson.M{"_id": 0, "round": 1}),
 		).Decode(&result); err == nil {
 			scoreboard.Round = int(result["round"].(int32))
@@ -47,16 +49,22 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db *mongodb.Conf
 				"scoreboard": bson.A{
 					bson.D{
 						bson.E{Key: "hero", Value: scoreboard.Hero1},
-						bson.E{Key: "score", Value: scoreboard.Score1}},
+						bson.E{Key: "score", Value: scoreboard.Score1},
+					},
 					bson.D{
 						bson.E{Key: "hero", Value: scoreboard.Hero2},
-						bson.E{Key: "score", Value: scoreboard.Score2}}}},
+						bson.E{Key: "score", Value: scoreboard.Score2},
+					},
+				},
+			},
 			bson.M{
 				"$setOnInsert": bson.D{
 					bson.E{Key: "event", Value: scoreboard.Event},
 					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)},
 					bson.E{Key: "hour", Value: t.Hour()},
-					bson.E{Key: "round", Value: scoreboard.Round}}},
+					bson.E{Key: "round", Value: scoreboard.Round},
+				},
+			},
 			options.Update().SetUpsert(true),
 		)
 		if err != nil {
@@ -111,7 +119,8 @@ func result(event int, tz *time.Location, db *mongodb.Config) (string, string, e
 	opts.SetSort(bson.D{
 		bson.E{Key: "round", Value: 1},
 		bson.E{Key: "scoreboard", Value: 1},
-		bson.E{Key: "date", Value: 1}})
+		bson.E{Key: "date", Value: 1},
+	})
 	detailCur, err := collection.Find(ctx, bson.M{"event": event}, opts)
 	if err != nil {
 		return "", "", err
@@ -126,34 +135,38 @@ func result(event int, tz *time.Location, db *mongodb.Config) (string, string, e
 		return "", "", nil
 	}
 
-	var pipeline []interface{}
-	pipeline = append(pipeline, bson.M{"$match": bson.M{"event": event}})
-	pipeline = append(pipeline, bson.M{"$addFields": bson.M{"tmp": "$scoreboard"}})
-	pipeline = append(pipeline, bson.M{"$unwind": "$tmp"})
-	pipeline = append(pipeline, bson.M{
-		"$group": bson.D{
-			bson.E{Key: "_id", Value: bson.D{
-				bson.E{Key: "r", Value: "$round"},
-				bson.E{Key: "h", Value: "$tmp.hero"}}},
+	summaryCur, err := collection.Aggregate(ctx, []bson.M{
+		{"$match": bson.M{"event": event}},
+		{"$addFields": bson.M{"tmp": "$scoreboard"}},
+		{"$unwind": "$tmp"},
+		{"$group": bson.D{
+			bson.E{
+				Key: "_id", Value: bson.D{
+					bson.E{Key: "r", Value: "$round"},
+					bson.E{Key: "h", Value: "$tmp.hero"},
+				},
+			},
 			bson.E{Key: "s", Value: bson.M{"$max": "$scoreboard"}},
-			bson.E{Key: "d", Value: bson.M{"$max": "$date"}}}})
-	pipeline = append(pipeline, bson.M{
-		"$group": bson.M{
+			bson.E{Key: "d", Value: bson.M{"$max": "$date"}},
+		}},
+		{"$group": bson.M{
 			"_id": bson.D{
 				bson.E{Key: "d", Value: "$d"},
 				bson.E{Key: "r", Value: "$_id.r"},
-				bson.E{Key: "s", Value: "$s"}}}})
-	pipeline = append(pipeline, bson.M{
-		"$project": bson.D{
+				bson.E{Key: "s", Value: "$s"},
+			},
+		}},
+		{"$project": bson.D{
 			bson.E{Key: "_id", Value: 0},
 			bson.E{Key: "date", Value: "$_id.d"},
 			bson.E{Key: "round", Value: "$_id.r"},
-			bson.E{Key: "scoreboard", Value: "$_id.s"}}})
-	pipeline = append(pipeline, bson.M{
-		"$sort": bson.D{
+			bson.E{Key: "scoreboard", Value: "$_id.s"},
+		}},
+		{"$sort": bson.D{
 			bson.E{Key: "round", Value: 1},
-			bson.E{Key: "scoreboard", Value: 1}}})
-	summaryCur, err := collection.Aggregate(ctx, pipeline)
+			bson.E{Key: "scoreboard", Value: 1},
+		}},
+	})
 	if err != nil {
 		return "", "", err
 	}
