@@ -10,11 +10,12 @@ import (
 	"feh"
 
 	"github.com/sunshineplan/database/mongodb"
+	"github.com/sunshineplan/database/mongodb/driver"
 	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
 )
 
-func Update(dialer *mail.Dialer, to []string, tz *time.Location, db *mongodb.Config) error {
+func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Client) error {
 	const (
 		title = "FEH 投票大戦第%d回 %s - %s"
 		body  = "%s\n\n%s"
@@ -98,7 +99,7 @@ func Update(dialer *mail.Dialer, to []string, tz *time.Location, db *mongodb.Con
 	return nil
 }
 
-func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *mongodb.Config) error {
+func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *driver.Client) error {
 	file := "backup.tmp"
 	if err := utils.Retry(
 		func() error {
@@ -120,7 +121,7 @@ func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *mongodb.Con
 		}, 3, 10)
 }
 
-func Result(event int, tz *time.Location, db *mongodb.Config) (int, string, string, error) {
+func Result(event int, tz *time.Location, db mongodb.Client) (int, string, string, error) {
 	var detail, summary string
 	if event == 0 {
 		if err := utils.Retry(

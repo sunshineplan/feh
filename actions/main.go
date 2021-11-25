@@ -9,12 +9,12 @@ import (
 
 	feh "feh/utils"
 
-	"github.com/sunshineplan/database/mongodb"
+	"github.com/sunshineplan/database/mongodb/driver"
 	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
 )
 
-var db = mongodb.Config{
+var db = driver.Client{
 	Database:   "feh",
 	Collection: "feh",
 	Username:   "feh",

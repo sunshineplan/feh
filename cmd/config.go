@@ -3,12 +3,12 @@ package main
 import (
 	"log"
 
-	"github.com/sunshineplan/database/mongodb"
+	"github.com/sunshineplan/database/mongodb/driver"
 	"github.com/sunshineplan/utils/mail"
 	"github.com/sunshineplan/utils/metadata"
 )
 
-var db mongodb.Config
+var db driver.Client
 var meta metadata.Server
 
 func initMongo() {

@@ -1,71 +1,57 @@
 package utils
 
 import (
-	"context"
+	"encoding/json"
 	"feh"
 	"fmt"
 	"log"
 	"time"
 
 	"github.com/sunshineplan/database/mongodb"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db *mongodb.Config) (newScoreboard []feh.Scoreboard, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	var client *mongo.Client
-	client, err = db.Open()
-	if err != nil {
-		return
-	}
-	defer client.Disconnect(ctx)
-
-	collection := client.Database(db.Database).Collection(db.Collection)
+func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Client) (newScoreboard []feh.Scoreboard, err error) {
 	for _, scoreboard := range fullScoreboard {
-		var result bson.M
-		if err = collection.FindOne(
-			ctx,
-			bson.M{
+		var res struct{ Round int }
+		if err = db.FindOne(
+			mongodb.M{
 				"event":           scoreboard.Event,
-				"scoreboard.hero": bson.M{"$all": bson.A{scoreboard.Hero1, scoreboard.Hero2}},
+				"scoreboard.hero": mongodb.M{"$all": []string{scoreboard.Hero1, scoreboard.Hero2}},
 			},
-			options.FindOne().SetProjection(bson.M{"_id": 0, "round": 1}),
-		).Decode(&result); err == nil {
-			scoreboard.Round = int(result["round"].(int32))
-		} else if err != mongo.ErrNoDocuments {
+			&mongodb.FindOneOpt{Projection: mongodb.M{"_id": 0, "round": 1}},
+			&res,
+		); err == nil {
+			scoreboard.Round = res.Round
+		} else if err != mongodb.ErrNoDocuments {
 			return
 		}
 
 		t := time.Now().In(tz)
-		var r *mongo.UpdateResult
-		r, err = collection.UpdateOne(
-			ctx,
-			bson.M{
-				"scoreboard": bson.A{
-					bson.D{
-						bson.E{Key: "hero", Value: scoreboard.Hero1},
-						bson.E{Key: "score", Value: scoreboard.Score1},
-					},
-					bson.D{
-						bson.E{Key: "hero", Value: scoreboard.Hero2},
-						bson.E{Key: "score", Value: scoreboard.Score2},
-					},
+		var r *mongodb.UpdateResult
+		r, err = db.UpdateOne(
+			mongodb.M{
+				"scoreboard": []struct {
+					Hero  string `json:"hero" bson:"hero"`
+					Score int    `json:"score" bson:"score"`
+				}{
+					{scoreboard.Hero1, scoreboard.Score1},
+					{scoreboard.Hero2, scoreboard.Score2},
 				},
 			},
-			bson.M{
-				"$setOnInsert": bson.D{
-					bson.E{Key: "event", Value: scoreboard.Event},
-					bson.E{Key: "date", Value: time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)},
-					bson.E{Key: "hour", Value: t.Hour()},
-					bson.E{Key: "round", Value: scoreboard.Round},
+			mongodb.M{
+				"$setOnInsert": struct {
+					Event int         `json:"event" bson:"event"`
+					Date  interface{} `json:"date" bson:"date"`
+					Hour  int         `json:"hour" bson:"hour"`
+					Round int         `json:"round" bson:"round"`
+				}{
+					scoreboard.Event,
+					db.Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)).Interface(),
+					t.Hour(),
+					scoreboard.Round,
 				},
 			},
-			options.Update().SetUpsert(true),
+			&mongodb.UpdateOpt{Upsert: true},
 		)
 		if err != nil {
 			return
@@ -79,16 +65,82 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db *mongodb.Conf
 	return
 }
 
-func converter(d []bson.D, tz *time.Location) string {
+type scoreboard struct {
+	Date       time.Time
+	Hour       int
+	Round      int
+	Scoreboard []struct {
+		Hero  string `json:"hero" bson:"hero"`
+		Score int    `json:"score" bson:"score"`
+	}
+}
+
+func result(event int, tz *time.Location, db mongodb.Client) (string, string, error) {
+	var detail, summary []scoreboard
+	if err := db.Find(
+		mongodb.M{"event": event},
+		&mongodb.FindOpt{
+			Projection: mongodb.M{"_id": 0, "event": 0},
+			Sort: struct {
+				Round      int `json:"round" bson:"round"`
+				Scoreboard int `json:"scoreboard" bson:"scoreboard"`
+				Date       int `json:"date" bson:"date"`
+			}{1, 1, 1},
+		},
+		&detail,
+	); err != nil {
+		return "", "", err
+	}
+
+	if len(detail) == 0 {
+		return "", "", nil
+	}
+
+	if err := db.Aggregate([]mongodb.M{
+		{"$match": mongodb.M{"event": event}},
+		{"$addFields": mongodb.M{"tmp": "$scoreboard"}},
+		{"$unwind": "$tmp"},
+		{"$group": mongodb.M{
+			"_id": mongodb.M{"r": "$round", "h": "$tmp.hero"},
+			"s":   mongodb.M{"$max": "$scoreboard"},
+			"d":   mongodb.M{"$max": "$date"},
+		}},
+		{"$group": mongodb.M{"_id": mongodb.M{"d": "$d", "r": "$_id.r", "s": "$s"}}},
+		{"$project": struct {
+			ID         int    `json:"_id" bson:"_id"`
+			Date       string `json:"date" bson:"date"`
+			Round      string `json:"round" bson:"round"`
+			Scoreboard string `json:"scoreboard" bson:"scoreboard"`
+		}{0, "$_id.d", "$_id.r", "$_id.s"}},
+		{"$sort": struct {
+			Round      int `json:"round" bson:"round"`
+			Scoreboard int `json:"scoreboard" bson:"scoreboard"`
+		}{1, 1}},
+	}, &summary); err != nil {
+		return "", "", err
+	}
+
+	return converter(detail, tz), converter(summary, tz), nil
+}
+
+func converter(d []scoreboard, tz *time.Location) string {
 	var output string
 	for index, item := range d {
-		for i, e := range item {
-			if e.Key == "date" {
-				item[i].Value = e.Value.(primitive.DateTime).Time().In(tz).Format("2006-01-02")
-				break
-			}
+		var scoreboard struct {
+			Date       string `json:"date" bson:"date"`
+			Hour       int    `json:"hour,omitempty" bson:"hour"`
+			Round      int    `json:"round" bson:"round"`
+			Scoreboard []struct {
+				Hero  string `json:"hero" bson:"hero"`
+				Score int    `json:"score" bson:"score"`
+			} `json:"scoreboard" bson:"scoreboard"`
 		}
-		b, err := bson.MarshalExtJSON(item, false, true)
+		scoreboard.Date = item.Date.In(tz).Format("2006-01-02")
+		scoreboard.Hour = item.Hour
+		scoreboard.Round = item.Round
+		scoreboard.Scoreboard = item.Scoreboard
+
+		b, err := json.Marshal(item)
 		if err != nil {
 			log.Println(err)
 		}
@@ -99,82 +151,4 @@ func converter(d []bson.D, tz *time.Location) string {
 		}
 	}
 	return fmt.Sprintf("[%s]", output)
-}
-
-func result(event int, tz *time.Location, db *mongodb.Config) (string, string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	client, err := db.Open()
-	if err != nil {
-		return "", "", err
-	}
-	defer client.Disconnect(ctx)
-
-	collection := client.Database(db.Database).Collection(db.Collection)
-	var detail, summary []bson.D
-
-	opts := options.Find()
-	opts.SetProjection(bson.M{"_id": 0, "event": 0})
-	opts.SetSort(bson.D{
-		bson.E{Key: "round", Value: 1},
-		bson.E{Key: "scoreboard", Value: 1},
-		bson.E{Key: "date", Value: 1},
-	})
-	detailCur, err := collection.Find(ctx, bson.M{"event": event}, opts)
-	if err != nil {
-		return "", "", err
-	}
-	defer detailCur.Close(ctx)
-
-	if err := detailCur.All(ctx, &detail); err != nil {
-		return "", "", err
-	}
-
-	if len(detail) == 0 {
-		return "", "", nil
-	}
-
-	summaryCur, err := collection.Aggregate(ctx, []bson.M{
-		{"$match": bson.M{"event": event}},
-		{"$addFields": bson.M{"tmp": "$scoreboard"}},
-		{"$unwind": "$tmp"},
-		{"$group": bson.D{
-			bson.E{
-				Key: "_id", Value: bson.D{
-					bson.E{Key: "r", Value: "$round"},
-					bson.E{Key: "h", Value: "$tmp.hero"},
-				},
-			},
-			bson.E{Key: "s", Value: bson.M{"$max": "$scoreboard"}},
-			bson.E{Key: "d", Value: bson.M{"$max": "$date"}},
-		}},
-		{"$group": bson.M{
-			"_id": bson.D{
-				bson.E{Key: "d", Value: "$d"},
-				bson.E{Key: "r", Value: "$_id.r"},
-				bson.E{Key: "s", Value: "$s"},
-			},
-		}},
-		{"$project": bson.D{
-			bson.E{Key: "_id", Value: 0},
-			bson.E{Key: "date", Value: "$_id.d"},
-			bson.E{Key: "round", Value: "$_id.r"},
-			bson.E{Key: "scoreboard", Value: "$_id.s"},
-		}},
-		{"$sort": bson.D{
-			bson.E{Key: "round", Value: 1},
-			bson.E{Key: "scoreboard", Value: 1},
-		}},
-	})
-	if err != nil {
-		return "", "", err
-	}
-	defer summaryCur.Close(ctx)
-
-	if err := summaryCur.All(ctx, &summary); err != nil {
-		return "", "", err
-	}
-
-	return converter(detail, tz), converter(summary, tz), nil
 }
