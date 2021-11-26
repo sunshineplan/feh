@@ -42,6 +42,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if err := db.Connect(); err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
 	switch flag.Arg(0) {
 	case "update":
 		err = feh.Update(&dialer, []string{to}, timezone, &db)

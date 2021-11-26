@@ -15,6 +15,9 @@ func initMongo() {
 	if err := meta.Get("feh_mongo", &db); err != nil {
 		log.Fatal(err)
 	}
+	if err := db.Connect(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getSubscribe() (dialer *mail.Dialer, to []string) {
