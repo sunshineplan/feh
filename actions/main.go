@@ -29,7 +29,7 @@ var to string
 func main() {
 	tz := flag.String("tz", "Local", "Time Zone")
 	flag.StringVar(&db.Server, "mongo", "", "MongoDB Server")
-	flag.StringVar(&dialer.Host, "server", "", "SMTP Server")
+	flag.StringVar(&dialer.Server, "server", "", "SMTP Server")
 	flag.IntVar(&dialer.Port, "port", 587, "SMTP Server Port")
 	flag.StringVar(&dialer.Account, "account", "", "Mail Account")
 	flag.StringVar(&dialer.Password, "password", "", "Mail Account Password")
