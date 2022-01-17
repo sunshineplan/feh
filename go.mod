@@ -3,7 +3,7 @@ module feh
 go 1.17
 
 require (
-	github.com/anaskhan96/soup v1.2.4
+	github.com/anaskhan96/soup v1.2.5
 	github.com/google/go-github/v37 v37.0.0
 	github.com/sunshineplan/database/mongodb v1.0.4
 	github.com/sunshineplan/database/mongodb/driver v1.0.2
