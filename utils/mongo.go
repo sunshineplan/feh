@@ -31,8 +31,8 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 		r, err = db.UpdateOne(
 			mongodb.M{
 				"scoreboard": []struct {
-					Hero  string `json:"hero" bson:"hero"`
-					Score int    `json:"score" bson:"score"`
+					Hero  string `json:"hero"`
+					Score int    `json:"score"`
 				}{
 					{scoreboard.Hero1, scoreboard.Score1},
 					{scoreboard.Hero2, scoreboard.Score2},
@@ -40,10 +40,10 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 			},
 			mongodb.M{
 				"$setOnInsert": struct {
-					Event int         `json:"event" bson:"event"`
-					Date  interface{} `json:"date" bson:"date"`
-					Hour  int         `json:"hour" bson:"hour"`
-					Round int         `json:"round" bson:"round"`
+					Event int         `json:"event"`
+					Date  interface{} `json:"date"`
+					Hour  int         `json:"hour"`
+					Round int         `json:"round"`
 				}{
 					scoreboard.Event,
 					db.Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)).Interface(),
@@ -70,8 +70,8 @@ type scoreboard struct {
 	Hour       int
 	Round      int
 	Scoreboard []struct {
-		Hero  string `json:"hero" bson:"hero"`
-		Score int    `json:"score" bson:"score"`
+		Hero  string `json:"hero"`
+		Score int    `json:"score"`
 	}
 }
 
@@ -82,9 +82,9 @@ func result(event int, tz *time.Location, db mongodb.Client) (string, string, er
 		&mongodb.FindOpt{
 			Projection: mongodb.M{"_id": 0, "event": 0},
 			Sort: struct {
-				Round      int `json:"round" bson:"round"`
-				Scoreboard int `json:"scoreboard" bson:"scoreboard"`
-				Date       int `json:"date" bson:"date"`
+				Round      int `json:"round"`
+				Scoreboard int `json:"scoreboard"`
+				Date       int `json:"date"`
 			}{1, 1, 1},
 		},
 		&detail,
@@ -120,29 +120,46 @@ func result(event int, tz *time.Location, db mongodb.Client) (string, string, er
 		return "", "", err
 	}
 
-	return converter(detail, tz), converter(summary, tz), nil
+	return converter(detail, true, tz), converter(summary, false, tz), nil
 }
 
-func converter(d []scoreboard, tz *time.Location) string {
+func converter(d []scoreboard, showHour bool, tz *time.Location) string {
 	var output string
 	for index, item := range d {
-		var scoreboard struct {
-			Date       string `json:"date" bson:"date"`
-			Hour       int    `json:"hour,omitempty" bson:"hour"`
-			Round      int    `json:"round" bson:"round"`
-			Scoreboard []struct {
-				Hero  string `json:"hero" bson:"hero"`
-				Score int    `json:"score" bson:"score"`
-			} `json:"scoreboard" bson:"scoreboard"`
+		var scoreboard interface{}
+		if showHour {
+			scoreboard = struct {
+				Date       string `json:"date"`
+				Hour       int    `json:"hour"`
+				Round      int    `json:"round"`
+				Scoreboard []struct {
+					Hero  string `json:"hero"`
+					Score int    `json:"score"`
+				} `json:"scoreboard"`
+			}{
+				item.Date.In(tz).Format("2006-01-02"),
+				item.Hour,
+				item.Round,
+				item.Scoreboard,
+			}
+		} else {
+			scoreboard = struct {
+				Date       string `json:"date"`
+				Round      int    `json:"round"`
+				Scoreboard []struct {
+					Hero  string `json:"hero"`
+					Score int    `json:"score"`
+				} `json:"scoreboard"`
+			}{
+				item.Date.In(tz).Format("2006-01-02"),
+				item.Round,
+				item.Scoreboard,
+			}
 		}
-		scoreboard.Date = item.Date.In(tz).Format("2006-01-02")
-		scoreboard.Hour = item.Hour
-		scoreboard.Round = item.Round
-		scoreboard.Scoreboard = item.Scoreboard
 
-		b, err := json.Marshal(item)
+		b, err := json.Marshal(scoreboard)
 		if err != nil {
-			log.Println(err)
+			log.Print(err)
 		}
 		if index < len(d)-1 {
 			output = output + string(b) + ",\n"
