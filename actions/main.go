@@ -10,8 +10,8 @@ import (
 	feh "feh/utils"
 
 	"github.com/sunshineplan/database/mongodb/driver"
-	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
+	"github.com/sunshineplan/utils/retry"
 )
 
 var db = driver.Client{
@@ -50,8 +50,8 @@ func main() {
 	switch flag.Arg(0) {
 	case "update":
 		err = feh.Update(&dialer, []string{to}, timezone, &db)
-		if err == utils.ErrNoMoreRetry {
-			log.Print("Event not open.")
+		if retry.IsNoMoreRetry(err) {
+			log.Print(err)
 			return
 		}
 	case "backup":

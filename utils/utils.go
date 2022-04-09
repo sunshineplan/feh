@@ -11,8 +11,8 @@ import (
 
 	"github.com/sunshineplan/database/mongodb"
 	"github.com/sunshineplan/database/mongodb/driver"
-	"github.com/sunshineplan/utils"
 	"github.com/sunshineplan/utils/mail"
+	"github.com/sunshineplan/utils/retry"
 )
 
 func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Client) error {
@@ -23,12 +23,12 @@ func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Clie
 
 	var event, round int
 	var fullScoreboard, newScoreboard []feh.Scoreboard
-	if err := utils.Retry(
+	if err := retry.Do(
 		func() (err error) {
 			event, round, fullScoreboard, err = feh.Scrape()
 			if err != nil {
 				if err == feh.ErrEventNotOpen {
-					err = utils.ErrNoMoreRetry
+					err = retry.ErrNoMoreRetry(err.Error())
 					return
 				}
 				log.Print(err)
@@ -61,7 +61,7 @@ func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Clie
 		c := make(chan error, 1)
 		if extra != 0 {
 			go func() {
-				c <- utils.Retry(
+				c <- retry.Do(
 					func() error {
 						return dialer.Send(
 							&mail.Message{
@@ -77,7 +77,7 @@ func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Clie
 			c <- nil
 		}
 
-		if err := utils.Retry(
+		if err := retry.Do(
 			func() error {
 				return dialer.Send(
 					&mail.Message{
@@ -101,7 +101,7 @@ func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Clie
 
 func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *driver.Client) error {
 	file := "backup.tmp"
-	if err := utils.Retry(
+	if err := retry.Do(
 		func() error {
 			return db.Backup(file)
 		}, 3, 60); err != nil {
@@ -109,7 +109,7 @@ func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *driver.Clie
 	}
 	defer os.Remove(file)
 
-	return utils.Retry(
+	return retry.Do(
 		func() error {
 			return dialer.Send(
 				&mail.Message{
@@ -124,7 +124,7 @@ func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *driver.Clie
 func Result(event int, tz *time.Location, db mongodb.Client) (int, string, string, error) {
 	var detail, summary string
 	if event == 0 {
-		if err := utils.Retry(
+		if err := retry.Do(
 			func() (err error) {
 				event, _, _, err = feh.Scrape()
 				if err != nil {
@@ -139,7 +139,7 @@ func Result(event int, tz *time.Location, db mongodb.Client) (int, string, strin
 			return 0, "", "", fmt.Errorf("no data in database")
 		}
 	} else {
-		if err := utils.Retry(
+		if err := retry.Do(
 			func() (err error) {
 				detail, summary, err = result(event, tz, db)
 				return

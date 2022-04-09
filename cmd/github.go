@@ -9,7 +9,7 @@ import (
 	feh "feh/utils"
 
 	"github.com/google/go-github/v37/github"
-	"github.com/sunshineplan/utils"
+	"github.com/sunshineplan/utils/retry"
 	"golang.org/x/oauth2"
 )
 
@@ -27,7 +27,7 @@ func createFile(name, content string) error {
 	opts := &github.RepositoryContentFileOptions{
 		Message: github.String(name),
 		Content: []byte(content)}
-	return utils.Retry(
+	return retry.Do(
 		func() error {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
