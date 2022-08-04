@@ -137,8 +137,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/stretchr/testify v1.6.1 h1:hDPOHmpOpP40lSULcqw7IrRb/u7w6RpDC9399XyoNd0=
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/sunshineplan/database/mongodb v1.0.4 h1:LQFMN3eNnRQccfiALFP2YAn36Ozo6viNWfxGSZcogCk=
-github.com/sunshineplan/database/mongodb v1.0.4/go.mod h1:nAe7RUd55h9xuFWeZsewNGjYfRGu5NTntPRrVTgOoqM=
+github.com/sunshineplan/database/mongodb v1.0.5 h1:+Mtcs8LjHaP00OOx0r0rf6/UinwMMWf1rnxcKNo0cc0=
+github.com/sunshineplan/database/mongodb v1.0.5/go.mod h1:WlNbFgkQFkgkGORHk2/RsgT6ZJGwe0lLo65JYhWKPME=
 github.com/sunshineplan/database/mongodb/driver v1.0.2 h1:1fD3aR8NEkGehflGDIR2ZUy0XtGGXmoPAoJ/gR8yL7k=
 github.com/sunshineplan/database/mongodb/driver v1.0.2/go.mod h1:cUFq40+Bqwb+cEuQ2Z5mBNCM+0dACGTMgtuzav18DU8=
 github.com/sunshineplan/utils v0.1.5 h1:13Zxnil/vh0l3OBZjoudAkZCczWOEE1LAQvIOwMAgng=
