@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/sunshineplan/database/mongodb/driver"
+	"github.com/sunshineplan/metadata"
 	"github.com/sunshineplan/utils/mail"
-	"github.com/sunshineplan/utils/metadata"
 )
 
 var db driver.Client
