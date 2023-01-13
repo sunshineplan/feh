@@ -57,8 +57,8 @@ github.com/sunshineplan/database/mongodb/driver v1.0.2 h1:1fD3aR8NEkGehflGDIR2ZU
 github.com/sunshineplan/database/mongodb/driver v1.0.2/go.mod h1:cUFq40+Bqwb+cEuQ2Z5mBNCM+0dACGTMgtuzav18DU8=
 github.com/sunshineplan/metadata v1.1.0 h1:SFOvkva4F5U6PIUrk49M94aBvDdpwTDKahezJhz9MLI=
 github.com/sunshineplan/metadata v1.1.0/go.mod h1:NI/xJUuwpNqWZjiobBjkjsGoLKyDkUcRPt9bDaE7cTw=
-github.com/sunshineplan/utils v0.1.15 h1:TRTm9QzkFXNgL4zhEKALD7Mr4NS1GgNZlbJUmkd+4kE=
-github.com/sunshineplan/utils v0.1.15/go.mod h1:HfKwfZdb8gYzo451GrkSqdNQE6xVRtdLJ6gZV5XRaC4=
+github.com/sunshineplan/utils v0.1.16 h1:jfGbVxl4EXxnYux3aETlStXJcALk7GcPW71SvVgmDSY=
+github.com/sunshineplan/utils v0.1.16/go.mod h1:HfKwfZdb8gYzo451GrkSqdNQE6xVRtdLJ6gZV5XRaC4=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/vharitonsky/iniflags v0.0.0-20180513140207-a33cd0b5f3de h1:fkw+7JkxF3U1GzQoX9h69Wvtvxajo5Rbzy6+YMMzPIg=
