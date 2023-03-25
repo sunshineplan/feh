@@ -12,7 +12,7 @@ import (
 
 	feh "feh/utils"
 
-	"github.com/vharitonsky/iniflags"
+	"github.com/sunshineplan/utils/flags"
 )
 
 func usage() {
@@ -39,9 +39,8 @@ func main() {
 	flag.StringVar(&meta.Addr, "server", "", "Metadata Server Address")
 	flag.StringVar(&meta.Header, "header", "", "Verify Header Header Name")
 	flag.StringVar(&meta.Value, "value", "", "Verify Header Value")
-	iniflags.SetConfigFile(filepath.Join(filepath.Dir(self), "config.ini"))
-	iniflags.SetAllowMissingConfigFile(true)
-	iniflags.Parse()
+	flags.SetConfigFile(filepath.Join(filepath.Dir(self), "config.ini"))
+	flags.Parse()
 
 	initMongo()
 

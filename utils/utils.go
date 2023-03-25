@@ -15,7 +15,7 @@ import (
 	"github.com/sunshineplan/utils/retry"
 )
 
-func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Client) error {
+func Update(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db mongodb.Client) error {
 	const (
 		title = "FEH 投票大戦第%d回 %s - %s"
 		body  = "%s\n\n%s"
@@ -99,7 +99,7 @@ func Update(dialer *mail.Dialer, to []string, tz *time.Location, db mongodb.Clie
 	return nil
 }
 
-func Backup(dialer *mail.Dialer, to []string, tz *time.Location, db *driver.Client) error {
+func Backup(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db *driver.Client) error {
 	file := "backup.tmp"
 	if err := retry.Do(
 		func() error {

@@ -22,9 +22,11 @@ var db = driver.Client{
 	SRV:        true,
 }
 
-var timezone *time.Location
-var dialer mail.Dialer
-var to string
+var (
+	timezone *time.Location
+	dialer   mail.Dialer
+	to       mail.Receipts
+)
 
 func main() {
 	tz := flag.String("tz", "Local", "Time Zone")
@@ -33,7 +35,7 @@ func main() {
 	flag.IntVar(&dialer.Port, "port", 587, "SMTP Server Port")
 	flag.StringVar(&dialer.Account, "account", "", "Mail Account")
 	flag.StringVar(&dialer.Password, "password", "", "Mail Account Password")
-	flag.StringVar(&to, "to", "", "Backup Account")
+	flag.TextVar(&to, "to", mail.Receipts(nil), "Backup Account")
 	flag.Parse()
 
 	var err error
@@ -49,13 +51,13 @@ func main() {
 
 	switch flag.Arg(0) {
 	case "update":
-		err = feh.Update(&dialer, []string{to}, timezone, &db)
+		err = feh.Update(&dialer, to, timezone, &db)
 		if retry.IsNoMoreRetry(err) {
 			log.Print(err)
 			return
 		}
 	case "backup":
-		err = feh.Backup(&dialer, []string{to}, timezone, &db)
+		err = feh.Backup(&dialer, to, timezone, &db)
 	case "commit":
 		err = commit()
 	default:

@@ -20,12 +20,12 @@ func initMongo() {
 	}
 }
 
-func getSubscribe() (dialer *mail.Dialer, to []string) {
+func getSubscribe() (dialer *mail.Dialer, to mail.Receipts) {
 	var config struct {
 		SMTPServer     string
 		SMTPServerPort int
 		From, Password string
-		To             []string
+		To             mail.Receipts
 	}
 	if err := meta.Get("feh_subscribe", &config); err != nil {
 		log.Fatalln("Failed to get feh_subscribe metadata:", err)
