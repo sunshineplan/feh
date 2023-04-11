@@ -56,8 +56,8 @@ github.com/sunshineplan/database/mongodb/driver v1.0.2 h1:1fD3aR8NEkGehflGDIR2ZU
 github.com/sunshineplan/database/mongodb/driver v1.0.2/go.mod h1:cUFq40+Bqwb+cEuQ2Z5mBNCM+0dACGTMgtuzav18DU8=
 github.com/sunshineplan/metadata v1.1.1 h1:nlufF4CnAgwenW/Esi4iK6uGVxval/PdtV6Wrza/Wic=
 github.com/sunshineplan/metadata v1.1.1/go.mod h1:ENxneH9PDpQuw3IVJMu38rkfS1p+KVG4pddySkEEDSU=
-github.com/sunshineplan/utils v0.1.31 h1:s5GHsAlgLuxeUbz0nGatxiluG9Awc0kltnsIODzkQKI=
-github.com/sunshineplan/utils v0.1.31/go.mod h1:Wx+eubdt52Vl0l7U6gGjtP6VGrA5jqLeqWNDckGXL8I=
+github.com/sunshineplan/utils v0.1.33 h1:+KkdvmXU7FDnXaPydVeuPEx8dEvu/KjkiAJzV1lSYdQ=
+github.com/sunshineplan/utils v0.1.33/go.mod h1:Wx+eubdt52Vl0l7U6gGjtP6VGrA5jqLeqWNDckGXL8I=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
