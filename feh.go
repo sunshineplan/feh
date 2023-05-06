@@ -1,17 +1,20 @@
 package feh
 
 import (
+	"errors"
 	"fmt"
+	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/anaskhan96/soup"
+	"github.com/sunshineplan/node"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 )
 
 // ErrEventNotOpen is an error when event is not open.
-var ErrEventNotOpen = fmt.Errorf("Event not open yet")
+var ErrEventNotOpen = errors.New("event not open yet")
 
 // Round string
 var Round = map[int]string{1: "Round1", 2: "Round2", 3: "Final Round"}
@@ -49,47 +52,54 @@ func (s *Scoreboard) Formatter() string {
 
 // Scrape scrapes fireemblem heroes voting gauntlet informations.
 func Scrape() (event int, round int, fullScoreboard []Scoreboard, err error) {
-	var body string
-	body, err = soup.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("%v", e)
+		}
+	}()
+
+	resp, err := http.Get("https://support.fire-emblem-heroes.com/voting_gauntlet/current")
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	s := strings.Split(resp.Request.URL.String(), "/")
+	event, err = strconv.Atoi(s[len(s)-1])
 	if err != nil {
 		return
 	}
 
-	doc := soup.HTMLParse(body)
-	for _, class := range strings.Split(doc.Find("div", "class", "title-section").Attrs()["class"], " ") {
-		if strings.Contains(class, "cover") {
-			event, err = strconv.Atoi(strings.Split(class, "-")[1])
-			if err != nil {
-				return
-			}
-			break
+	doc, err := node.Parse(resp.Body)
+	if err != nil {
+		return
+	}
+	re := regexp.MustCompile(`title-tournament-(\d+)`)
+	h2 := doc.Find(0, node.Tag("h2"), node.Class(re))
+	class, _ := h2.Attrs().Get("class")
+	if res := re.FindStringSubmatch(class); len(res) == 0 {
+		err = errors.New("round not found")
+		return
+	} else {
+		round, err = strconv.Atoi(res[1])
+		if err != nil {
+			return
 		}
 	}
 
-	for _, class := range strings.Split(doc.Find("h2", "class", "title-section").Attrs()["class"], " ") {
-		if strings.Contains(class, "tournament") {
-			round, err = strconv.Atoi(strings.Split(class, "-")[2])
-			if err != nil {
-				return
-			}
-			break
-		}
-	}
-
-	allBattles := doc.FindAll("li", "class", "tournaments-battle")
+	allBattles := doc.FindAll(0, node.Li, node.Class("tournaments-battle"))
 	for _, battle := range allBattles {
-		var scoreboard Scoreboard
-		scoreboard.Event = event
-		scoreboard.Round = round
-		content := battle.FindAll("p")
-		scoreboard.Hero1 = content[0].Text()
-		scoreboard.Score1, err = strconv.Atoi(strings.ReplaceAll(content[1].Text(), ",", ""))
+		scoreboard := Scoreboard{Event: event, Round: round}
+		left := battle.Find(0, node.Div, node.Class(regexp.MustCompile("left"))).Find(0, node.P, node.Class("name"))
+		scoreboard.Hero1 = left.GetText()
+		scoreboard.Score1, err = strconv.Atoi(strings.ReplaceAll(left.NextSibling().GetText(), ",", ""))
 		if err != nil {
 			err = ErrEventNotOpen
 			return
 		}
-		scoreboard.Hero2 = content[2].Text()
-		scoreboard.Score2, err = strconv.Atoi(strings.ReplaceAll(content[3].Text(), ",", ""))
+		right := battle.Find(0, node.Div, node.Class(regexp.MustCompile("right"))).Find(0, node.P, node.Class("name"))
+		scoreboard.Hero2 = right.GetText()
+		scoreboard.Score2, err = strconv.Atoi(strings.ReplaceAll(right.NextSibling().GetText(), ",", ""))
 		if err != nil {
 			err = ErrEventNotOpen
 			return
