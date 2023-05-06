@@ -43,7 +43,7 @@ func Update(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db mongodb
 		return err
 	}
 
-	if newScoreboard != nil {
+	if dialer != nil && newScoreboard != nil {
 		var content []string
 		var extra int
 		var extraContent []string

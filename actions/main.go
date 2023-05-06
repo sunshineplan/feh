@@ -28,8 +28,12 @@ var (
 	to       mail.Receipts
 )
 
+var (
+	tz     = flag.String("tz", "Local", "Time Zone")
+	report = flag.Bool("mail", false, "email result")
+)
+
 func main() {
-	tz := flag.String("tz", "Local", "Time Zone")
 	flag.StringVar(&db.Server, "mongo", "", "MongoDB Server")
 	flag.StringVar(&dialer.Server, "server", "", "SMTP Server")
 	flag.IntVar(&dialer.Port, "port", 587, "SMTP Server Port")
@@ -51,7 +55,11 @@ func main() {
 
 	switch flag.Arg(0) {
 	case "update":
-		err = feh.Update(&dialer, to, timezone, &db)
+		var d *mail.Dialer
+		if *report {
+			d = &dialer
+		}
+		err = feh.Update(d, to, timezone, &db)
 		if retry.IsNoMoreRetry(err) {
 			log.Print(err)
 			return
