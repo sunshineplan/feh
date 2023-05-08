@@ -54,8 +54,8 @@ github.com/sunshineplan/database/mongodb/driver v1.0.2 h1:1fD3aR8NEkGehflGDIR2ZU
 github.com/sunshineplan/database/mongodb/driver v1.0.2/go.mod h1:cUFq40+Bqwb+cEuQ2Z5mBNCM+0dACGTMgtuzav18DU8=
 github.com/sunshineplan/metadata v1.1.1 h1:nlufF4CnAgwenW/Esi4iK6uGVxval/PdtV6Wrza/Wic=
 github.com/sunshineplan/metadata v1.1.1/go.mod h1:ENxneH9PDpQuw3IVJMu38rkfS1p+KVG4pddySkEEDSU=
-github.com/sunshineplan/node v1.0.1 h1:sUn57kG2Ja7zvRv9p51s4Xgt2qGW9T1zrVsqpXeulAg=
-github.com/sunshineplan/node v1.0.1/go.mod h1:QUBwbyzEiphy/W4Xh4ZVwurkLSkTuqzabD3Ok+nhcPU=
+github.com/sunshineplan/node v1.0.2 h1:565RXzJwYlD08feE0V3/h9nsq7dzKndZmUFv2XN9xoM=
+github.com/sunshineplan/node v1.0.2/go.mod h1:QUBwbyzEiphy/W4Xh4ZVwurkLSkTuqzabD3Ok+nhcPU=
 github.com/sunshineplan/utils v0.1.37 h1:iBbc10xV8BxpPbEWL+/uQd17m8ZMTl/nNe4mjnfuB5k=
 github.com/sunshineplan/utils v0.1.37/go.mod h1:Wx+eubdt52Vl0l7U6gGjtP6VGrA5jqLeqWNDckGXL8I=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
