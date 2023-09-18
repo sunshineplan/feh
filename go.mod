@@ -1,6 +1,6 @@
 module feh
 
-go 1.21
+go 1.21.0
 
 require (
 	github.com/google/go-github/v37 v37.0.0
