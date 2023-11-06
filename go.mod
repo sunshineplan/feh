@@ -10,7 +10,7 @@ require (
 	github.com/sunshineplan/node v1.0.3
 	github.com/sunshineplan/utils v0.1.55
 	golang.org/x/oauth2 v0.13.0
-	golang.org/x/text v0.13.0
+	golang.org/x/text v0.14.0
 )
 
 require (
