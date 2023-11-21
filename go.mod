@@ -7,13 +7,17 @@ require (
 	github.com/sunshineplan/database/mongodb v1.0.5
 	github.com/sunshineplan/database/mongodb/driver v1.0.2
 	github.com/sunshineplan/metadata v1.1.1
-	github.com/sunshineplan/node v1.0.3
+	github.com/sunshineplan/node v1.0.4
 	github.com/sunshineplan/utils v0.1.55
 	golang.org/x/oauth2 v0.14.0
 	golang.org/x/text v0.14.0
 )
 
 require (
+	github.com/antchfx/htmlquery v1.3.0 // indirect
+	github.com/antchfx/xpath v1.2.3 // indirect
+	github.com/ericchiang/css v1.3.0 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
