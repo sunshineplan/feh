@@ -69,8 +69,8 @@ github.com/sunshineplan/metadata v1.1.1 h1:nlufF4CnAgwenW/Esi4iK6uGVxval/PdtV6Wr
 github.com/sunshineplan/metadata v1.1.1/go.mod h1:ENxneH9PDpQuw3IVJMu38rkfS1p+KVG4pddySkEEDSU=
 github.com/sunshineplan/node v1.0.4 h1:SWZtWA0uhnD5ZPJz+u/nDvHGzDMS8+bHgkIO5OeWOtI=
 github.com/sunshineplan/node v1.0.4/go.mod h1:2NI0D8OwJVYkT5Y1j5goFp6s/BE43xJBBiLvikZeuRA=
-github.com/sunshineplan/utils v0.1.59 h1:c0bZslNufrW5AhgjRIKy4njjnmMWXJoNLlppKIzLjyg=
-github.com/sunshineplan/utils v0.1.59/go.mod h1:7zhDUGgKo2FMFzs7j6IL7B/lh3BRuE7rb7R7IgGOAfc=
+github.com/sunshineplan/utils v0.1.60 h1:+hRzu+1dCd3PyKTHWPCE0Huq0/1woc5Qb4UnQRW3KtI=
+github.com/sunshineplan/utils v0.1.60/go.mod h1:7zhDUGgKo2FMFzs7j6IL7B/lh3BRuE7rb7R7IgGOAfc=
 github.com/tidwall/pretty v1.0.0 h1:HsD+QiTn7sK6flMKIvNmpqz1qrpP3Ps6jOKIKMooyg4=
 github.com/tidwall/pretty v1.0.0/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
