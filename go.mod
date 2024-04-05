@@ -9,7 +9,7 @@ require (
 	github.com/sunshineplan/metadata v1.1.1
 	github.com/sunshineplan/node v1.0.4
 	github.com/sunshineplan/utils v0.1.64
-	golang.org/x/oauth2 v0.18.0
+	golang.org/x/oauth2 v0.19.0
 	golang.org/x/text v0.14.0
 )
 
@@ -18,7 +18,6 @@ require (
 	github.com/antchfx/xpath v1.2.3 // indirect
 	github.com/ericchiang/css v1.3.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
@@ -36,6 +35,4 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.33.0 // indirect
 )
