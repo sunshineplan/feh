@@ -4,8 +4,7 @@ go 1.22
 
 require (
 	github.com/google/go-github/v37 v37.0.0
-	github.com/sunshineplan/database/mongodb v1.0.6
-	github.com/sunshineplan/database/mongodb/driver v1.0.3
+	github.com/sunshineplan/database/mongodb v1.0.7
 	github.com/sunshineplan/metadata v1.1.1
 	github.com/sunshineplan/node v1.0.4
 	github.com/sunshineplan/utils v0.1.66
