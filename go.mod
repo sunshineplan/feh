@@ -8,7 +8,7 @@ require (
 	github.com/sunshineplan/metadata v1.1.1
 	github.com/sunshineplan/node v1.0.4
 	github.com/sunshineplan/utils v0.1.66
-	golang.org/x/oauth2 v0.20.0
+	golang.org/x/oauth2 v0.21.0
 	golang.org/x/text v0.16.0
 )
 
