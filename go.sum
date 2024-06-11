@@ -46,8 +46,8 @@ github.com/sunshineplan/metadata v1.1.1 h1:nlufF4CnAgwenW/Esi4iK6uGVxval/PdtV6Wr
 github.com/sunshineplan/metadata v1.1.1/go.mod h1:ENxneH9PDpQuw3IVJMu38rkfS1p+KVG4pddySkEEDSU=
 github.com/sunshineplan/node v1.0.4 h1:SWZtWA0uhnD5ZPJz+u/nDvHGzDMS8+bHgkIO5OeWOtI=
 github.com/sunshineplan/node v1.0.4/go.mod h1:2NI0D8OwJVYkT5Y1j5goFp6s/BE43xJBBiLvikZeuRA=
-github.com/sunshineplan/utils v0.1.66 h1:YwIuVQxmaL0bEnEKHU64pseCC18w2MZVtyrmY4VFOew=
-github.com/sunshineplan/utils v0.1.66/go.mod h1:QMe2vCEFq9VliPac8WfXndi5jP0ZrPHus8wvJlgBy5M=
+github.com/sunshineplan/utils v0.1.67 h1:YdeMbTryVv//6yka6qtNdgQqOifWVzR4kbCtw7v+imY=
+github.com/sunshineplan/utils v0.1.67/go.mod h1:QMe2vCEFq9VliPac8WfXndi5jP0ZrPHus8wvJlgBy5M=
 github.com/xdg-go/pbkdf2 v1.0.0 h1:Su7DPu48wXMwC3bs7MCNG+z4FhcyEuz5dlvchbq0B0c=
 github.com/xdg-go/pbkdf2 v1.0.0/go.mod h1:jrpuAogTd400dnrH08LKmI/xc1MbPOebTwRqcT5RDeI=
 github.com/xdg-go/scram v1.1.2 h1:FHX5I5B4i4hKRVRBCFRxq1iQRej7WO3hhBuJf+UUySY=
