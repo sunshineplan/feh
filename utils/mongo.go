@@ -40,13 +40,13 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 			},
 			mongodb.M{
 				"$setOnInsert": struct {
-					Event int         `json:"event"`
-					Date  interface{} `json:"date"`
-					Hour  int         `json:"hour"`
-					Round int         `json:"round"`
+					Event int          `json:"event"`
+					Date  mongodb.Date `json:"date"`
+					Hour  int          `json:"hour"`
+					Round int          `json:"round"`
 				}{
 					scoreboard.Event,
-					db.Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)).Interface(),
+					db.Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)),
 					t.Hour(),
 					scoreboard.Round,
 				},
