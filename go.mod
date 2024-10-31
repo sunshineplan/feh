@@ -5,7 +5,7 @@ go 1.23
 require (
 	github.com/google/go-github/v37 v37.0.0
 	github.com/sunshineplan/database/mongodb v1.0.9
-	github.com/sunshineplan/metadata v1.1.1
+	github.com/sunshineplan/metadata v1.1.2
 	github.com/sunshineplan/node v1.0.4
 	github.com/sunshineplan/utils v0.1.73
 	golang.org/x/oauth2 v0.23.0
@@ -20,10 +20,10 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.5 // indirect
+	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/pschlump/AesCCM v0.0.0-20160925022350-c5df73b5834e // indirect
-	github.com/pschlump/MiscLib v1.0.3 // indirect
-	github.com/pschlump/json v1.12.0 // indirect
-	github.com/sunshineplan/cipher v1.0.5 // indirect
+	github.com/pschlump/ansi v1.0.0 // indirect
+	github.com/sunshineplan/cipher v1.0.7 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
