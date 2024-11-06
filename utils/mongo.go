@@ -26,7 +26,7 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 			return
 		}
 
-		t := time.Now().In(tz)
+		t := time.Now().In(tz).Truncate(24 * time.Hour)
 		var r *mongodb.UpdateResult
 		r, err = db.UpdateOne(
 			mongodb.M{
@@ -41,12 +41,12 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 			mongodb.M{
 				"$setOnInsert": struct {
 					Event int          `json:"event"`
-					Date  mongodb.Date `json:"date"`
+					Date  mongodb.Time `json:"date"`
 					Hour  int          `json:"hour"`
 					Round int          `json:"round"`
 				}{
 					scoreboard.Event,
-					db.Date(time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, tz)),
+					db.Time(t),
 					t.Hour(),
 					scoreboard.Round,
 				},
