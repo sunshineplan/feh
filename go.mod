@@ -9,7 +9,7 @@ require (
 	github.com/sunshineplan/node v1.0.4
 	github.com/sunshineplan/utils v0.1.73
 	golang.org/x/oauth2 v0.23.0
-	golang.org/x/text v0.19.0
+	golang.org/x/text v0.20.0
 )
 
 require (
@@ -31,5 +31,5 @@ require (
 	go.mongodb.org/mongo-driver/v2 v2.0.0-beta2 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/sync v0.9.0 // indirect
 )
