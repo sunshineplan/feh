@@ -6,16 +6,16 @@ require (
 	github.com/google/go-github/v37 v37.0.0
 	github.com/sunshineplan/database/mongodb v1.0.13
 	github.com/sunshineplan/metadata v1.1.2
-	github.com/sunshineplan/node v1.0.4
+	github.com/sunshineplan/node v1.0.5
 	github.com/sunshineplan/utils v0.1.73
 	golang.org/x/oauth2 v0.24.0
 	golang.org/x/text v0.20.0
 )
 
 require (
-	github.com/antchfx/htmlquery v1.3.0 // indirect
-	github.com/antchfx/xpath v1.2.3 // indirect
-	github.com/ericchiang/css v1.3.0 // indirect
+	github.com/antchfx/htmlquery v1.3.3 // indirect
+	github.com/antchfx/xpath v1.3.2 // indirect
+	github.com/ericchiang/css v1.4.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -29,7 +29,7 @@ require (
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.0.0-beta2 // indirect
-	golang.org/x/crypto v0.27.0 // indirect
-	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/crypto v0.29.0 // indirect
+	golang.org/x/net v0.31.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 )
