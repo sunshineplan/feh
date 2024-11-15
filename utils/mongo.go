@@ -26,7 +26,7 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 			return
 		}
 
-		t := time.Now().In(tz).Truncate(24 * time.Hour)
+		t := time.Now().In(tz)
 		var r *mongodb.UpdateResult
 		r, err = db.UpdateOne(
 			mongodb.M{
@@ -46,7 +46,7 @@ func record(fullScoreboard []feh.Scoreboard, tz *time.Location, db mongodb.Clien
 					Round int          `json:"round"`
 				}{
 					scoreboard.Event,
-					db.Time(t),
+					db.Time(t.Truncate(24 * time.Hour)),
 					t.Hour(),
 					scoreboard.Round,
 				},
