@@ -28,7 +28,7 @@ func Update(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db mongodb
 			event, round, fullScoreboard, err = feh.Scrape()
 			if err != nil {
 				if err == feh.ErrEventNotOpen {
-					err = retry.ErrNoMoreRetry(err.Error())
+					err = retry.StopRetry(err.Error())
 					return
 				}
 				log.Print(err)
