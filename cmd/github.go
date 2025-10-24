@@ -40,7 +40,7 @@ func createFile(name, content string) error {
 				fmt.Sprintf("%s/%s.json", config.Path, name),
 				opts)
 			return err
-		}, 3, 10)
+		}, 3, 10*time.Second)
 }
 
 func upload(event int) (err error) {

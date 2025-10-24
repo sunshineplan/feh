@@ -39,7 +39,7 @@ func Update(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db mongodb
 				log.Print(err)
 			}
 			return
-		}, 5, 60); err != nil {
+		}, 5, 60*time.Second); err != nil {
 		return err
 	}
 
@@ -71,7 +71,7 @@ func Update(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db mongodb
 								Body: fmt.Sprintf(body, strings.Join(extraContent, "\n"),
 									time.Now().In(tz).Format("20060102 15:04:05")),
 							})
-					}, 3, 10)
+					}, 3, 10*time.Second)
 			}()
 		} else {
 			c <- nil
@@ -87,7 +87,7 @@ func Update(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db mongodb
 						Body: fmt.Sprintf(body, strings.Join(content, "\n"),
 							time.Now().In(tz).Format("20060102 15:04:05")),
 					})
-			}, 3, 10); err != nil {
+			}, 3, 10*time.Second); err != nil {
 			return err
 		}
 
@@ -104,7 +104,7 @@ func Backup(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db *driver
 	if err := retry.Do(
 		func() error {
 			return db.Backup(file)
-		}, 3, 60); err != nil {
+		}, 3, 60*time.Second); err != nil {
 		return err
 	}
 	defer os.Remove(file)
@@ -118,7 +118,7 @@ func Backup(dialer *mail.Dialer, to mail.Receipts, tz *time.Location, db *driver
 						time.Now().In(tz).Format("20060102")),
 					Attachments: []*mail.Attachment{{Path: file, Filename: "database"}},
 				})
-		}, 3, 10)
+		}, 3, 10*time.Second)
 }
 
 func Result(event int, tz *time.Location, db mongodb.Client) (int, string, string, error) {
@@ -132,7 +132,7 @@ func Result(event int, tz *time.Location, db mongodb.Client) (int, string, strin
 				}
 				detail, summary, err = result(event, tz, db)
 				return
-			}, 5, 60); err != nil {
+			}, 5, 60*time.Second); err != nil {
 			return 0, "", "", err
 		}
 		if detail == "" {
@@ -143,7 +143,7 @@ func Result(event int, tz *time.Location, db mongodb.Client) (int, string, strin
 			func() (err error) {
 				detail, summary, err = result(event, tz, db)
 				return
-			}, 5, 60); err != nil {
+			}, 5, 60*time.Second); err != nil {
 			return 0, "", "", err
 		}
 		if detail == "" {
