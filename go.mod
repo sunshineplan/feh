@@ -7,7 +7,7 @@ require (
 	github.com/sunshineplan/database/mongodb v1.0.14
 	github.com/sunshineplan/metadata v1.1.2
 	github.com/sunshineplan/node v1.0.5
-	github.com/sunshineplan/utils v0.1.81
+	github.com/sunshineplan/utils v0.1.82
 	golang.org/x/oauth2 v0.32.0
 	golang.org/x/text v0.30.0
 )
