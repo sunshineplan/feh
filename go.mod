@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	github.com/google/go-github/v37 v37.0.0
-	github.com/sunshineplan/database/mongodb v1.0.14
+	github.com/sunshineplan/database/mongodb v1.0.15
 	github.com/sunshineplan/metadata v1.1.2
 	github.com/sunshineplan/node v1.0.5
 	github.com/sunshineplan/utils v0.1.83
@@ -28,7 +28,7 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	go.mongodb.org/mongo-driver/v2 v2.2.3 // indirect
+	go.mongodb.org/mongo-driver/v2 v2.4.1 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
