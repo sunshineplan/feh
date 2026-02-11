@@ -1,13 +1,13 @@
 module feh
 
-go 1.25
+go 1.26
 
 require (
 	github.com/google/go-github/v37 v37.0.0
 	github.com/sunshineplan/database/mongodb v1.0.15
 	github.com/sunshineplan/metadata v1.1.2
 	github.com/sunshineplan/node v1.0.5
-	github.com/sunshineplan/utils v0.1.83
+	github.com/sunshineplan/utils v0.1.84
 	golang.org/x/oauth2 v0.35.0
 	golang.org/x/text v0.34.0
 )
