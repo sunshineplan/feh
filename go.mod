@@ -19,7 +19,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/snappy v1.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/klauspost/compress v1.16.7 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/pschlump/AesCCM v0.0.0-20160925022350-c5df73b5834e // indirect
 	github.com/pschlump/ansi v1.0.0 // indirect
